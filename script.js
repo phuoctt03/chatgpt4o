@@ -35,6 +35,8 @@ function mode(number) {
   modeChat = chatMode[number-1];
   console.log(modeChat);
 }
+const apiKey = document.getElementById('api');
+const url = document.getElementById('url');
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
   const chatBox = document.getElementById('chat-box');
@@ -50,9 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         // Send request to the API
-        const apiKey = process.env.API_KEY
-        const url = process.env.URL;
-        
         const requestBody = {
           messages: [
             { role: 'system', content: modeChat || '' },
