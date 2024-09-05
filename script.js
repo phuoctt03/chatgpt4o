@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         // Send request to the API
-        const apiKey = config.API_KEY;
-        const url = config.URL;
+        const apiKey = config.apiKey;
+        const url = config.url;
         
         const requestBody = {
           messages: [
