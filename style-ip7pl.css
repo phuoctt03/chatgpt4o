@@ -1,0 +1,28 @@
+@media screen and (max-width: 500px) {
+    body{
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    header{
+        width: 100%;
+        left: 0px;
+        position: relative;
+    }
+    .examples-grid {
+        top: 85vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-gap: 1%;
+        right:7px;
+        width:95%;
+        position: absolute;
+    }
+    .icon-item-title {
+        font-weight: 600;
+    }
+    .chat-container {
+        left: calc(0px);
+        position: relative;
+    }
+}
