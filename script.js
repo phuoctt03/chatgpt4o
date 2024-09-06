@@ -32,8 +32,9 @@ const chatMode = [
 ]
 let modeChat;
 let apiKey;
-const tokenLocal = localStorage.getItem('apiKey');
-const token = document.getElementById('token');
+let tokenLocal = localStorage.getItem('apiKey');
+let modelGPT = "gpt-4o";
+let token = document.getElementById('token');
 if ( tokenLocal !== '' ) {
   token.value = tokenLocal;
 }
@@ -64,44 +65,43 @@ document.addEventListener('DOMContentLoaded', () => {
     input.value = '';
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
 
-    try {
-        // Send request to the API
-        const apiKey = localStorage.getItem('apiKey');
-        const url = 'https://models.inference.ai.azure.com/chat/completions';
-        
-        const requestBody = {
-          messages: [
-            { role: 'system', content: modeChat || '' },
-            { role: 'user', content: question }
-          ],
-          model: 'gpt-4o',
-          temperature: 1,
-          max_tokens: 4096,
-          top_p: 1
-        };
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(requestBody)
-        });
+    // Send request to the API
+    const apiKey = localStorage.getItem('apiKey');
+    const url = 'https://models.inference.ai.azure.com/chat/completions';
+    
+    const requestBody = {
+      messages: [
+        { role: 'system', content: modeChat || '' },
+        { role: 'user', content: question }
+      ],
+      model: modelGPT,
+      temperature: 1,
+      max_tokens: 4096,
+      top_p: 1
+    };
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
 
-        const data = await response.json();
-
-        // Extract answer from the response
-        const answer = data.choices[0].message.content;
-
-        // Add AI's message to the chat box
-        chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    } catch (error) {
-        console.error('Error:', error);
-        chatBox.innerHTML += `<div class="message ai">An error occurred. Please try again.</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    if (response.status === 429) {
+      chatBox.innerHTML += `<div class="message ai">Rate limited. Please try again.</div>`;
+      modelGPT = "gpt-4o-mini"
+      console.log(modelGPT);
     }
+    const data = await response.json();
+
+    // Extract answer from the response
+    const answer = data.choices[0].message.content;
+
+    // Add AI's message to the chat box
+    chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
   }
 
   input.addEventListener('keypress', (event) => {
