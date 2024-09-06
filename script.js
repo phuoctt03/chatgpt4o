@@ -110,11 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSubmit();
     }
   });
+  
   token.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
         signin();
     }
   });
+  
   document.querySelector('#send').addEventListener('click', handleSubmit);
 });
