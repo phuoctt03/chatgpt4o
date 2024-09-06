@@ -31,15 +31,23 @@ const chatMode = [
   "",
 ]
 let modeChat;
+let apiKey;
 function mode(number) {
   modeChat = chatMode[number-1];
   console.log(modeChat);
 }
-const apiKey = document.getElementById('api');
-const url = document.getElementById('url');
+function signin() {
+  const token = document.getElementById('token');
+  if (token.style.display === 'block') {
+    token.style.display = 'none';
+  } else {
+    token.style.display = 'block';
+  }
+}
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
   const chatBox = document.getElementById('chat-box');
+  const token = document.getElementById('token');
   async function handleSubmit() {
     const question = input.value.trim();
 
@@ -52,6 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         // Send request to the API
+        const apiKey = localStorage.getItem('apiKey');
+        const url = 'https://models.inference.ai.azure.com/chat/completions';
+        
         const requestBody = {
           messages: [
             { role: 'system', content: modeChat || '' },
@@ -89,8 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   input.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-        event.preventDefault(); // Prevent newline character in input
+        event.preventDefault();
         handleSubmit();
+    }
+  });
+  token.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        apiKey = token.value;
+        localStorage.setItem('apiKey', apiKey);
+        token.style.display = 'none';
     }
   });
   document.querySelector('button').addEventListener('click', handleSubmit);
