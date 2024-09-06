@@ -38,6 +38,8 @@ function mode(number) {
 }
 function signin() {
   const token = document.getElementById('token');
+  apiKey = token.value;
+  localStorage.setItem('apiKey', apiKey);
   if (token.style.display === 'block') {
     token.style.display = 'none';
   } else {
@@ -107,10 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
   token.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
-        apiKey = token.value;
-        localStorage.setItem('apiKey', apiKey);
-        token.style.display = 'none';
     }
   });
+  document.querySelector('.token').addEventListener('click', signin);
   document.querySelector('button').addEventListener('click', handleSubmit);
 });
