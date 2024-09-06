@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   token.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
+        signin();
     }
   });
   document.querySelector('#token').addEventListener('click', signin);
