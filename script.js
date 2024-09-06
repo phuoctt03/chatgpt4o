@@ -32,15 +32,19 @@ const chatMode = [
 ]
 let modeChat;
 let apiKey;
+const tokenLocal = localStorage.getItem('apiKey');
+const token = document.getElementById('token');
+if ( tokenLocal !== '' ) {
+  token.value = tokenLocal;
+}
 function mode(number) {
   modeChat = chatMode[number-1];
   console.log(modeChat);
 }
 function signin() {
-  const token = document.getElementById('token');
-  apiKey = token.value;
-  localStorage.setItem('apiKey', apiKey);
   if (token.style.display === 'block') {
+    apiKey = token.value;
+    localStorage.setItem('apiKey', apiKey);
     token.style.display = 'none';
   } else {
     token.style.display = 'block';
@@ -111,6 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
     }
   });
-  document.querySelector('.token').addEventListener('click', signin);
-  document.querySelector('button').addEventListener('click', handleSubmit);
+  document.querySelector('#token').addEventListener('click', signin);
+  document.querySelector('#send').addEventListener('click', handleSubmit);
 });
