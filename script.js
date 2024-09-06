@@ -116,6 +116,5 @@ document.addEventListener('DOMContentLoaded', () => {
         signin();
     }
   });
-  document.querySelector('#token').addEventListener('click', signin);
   document.querySelector('#send').addEventListener('click', handleSubmit);
 });
