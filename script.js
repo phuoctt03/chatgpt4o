@@ -90,9 +90,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (response.status === 429) {
-      chatBox.innerHTML += `<div class="message ai">Rate limited. Please try again.</div>`;
+      chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
       modelGPT = "gpt-4o-mini"
-      console.log(modelGPT);
+      const requestBody = {
+        messages: [
+          { role: 'system', content: modeChat || '' },
+          { role: 'user', content: question }
+        ],
+        model: modelGPT,
+        temperature: 1,
+        max_tokens: 4096,
+        top_p: 1
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+      const data = await response.json();
+
+      // Extract answer from the response
+      const answer = data.choices[0].message.content;
+
+      // Add AI's message to the chat box
+      chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+      return;
     }
     const data = await response.json();
 
