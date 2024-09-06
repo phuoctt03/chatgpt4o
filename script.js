@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const answer = data.choices[0].message.content;
 
     // Add AI's message to the chat box
-    chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+    chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
   }
 
@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSubmit();
     }
   });
-  
   token.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
