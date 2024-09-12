@@ -65,13 +65,6 @@ header{
     background-color: #f9f9f9;
     font-size: small;
 }
-@media screen and (max-width: 600px) {
-    .icon-item {
-        flex-direction: column;
-        align-items: center;
-        
-    }
-}
 .icon-item:hover {
     opacity: 0.5;
 }
@@ -140,18 +133,23 @@ input[type="text"] {
     border-radius: 0 0 0 10px;
     outline: none;
     font-size: 16px;
+    box-sizing: border-box;
+    word-wrap: break-word;
 }
 
 button {
-    position: absolute;
-    right: 10px;
-    bottom: 9px;
-    padding:2px 5px;
+    position: relative;
+    margin-left: 0px;
+    padding: 2px 5px;
     border: none;
     background-color: #141414;
     color: white;
     font-size: 20px;
+    height: 50px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 button:hover {
@@ -198,32 +196,32 @@ button:active {
 }
 
 pre {
-  background-color: #f5f5f5; /* Màu nền sáng */
-  border: 1px solid #ddd; /* Viền nhẹ */
-  border-radius: 4px; /* Bo góc */
-  padding: 10px; /* Khoảng cách bên trong */
-  overflow: auto; /* Cuộn khi nội dung quá dài */
-  font-family: monospace; /* Phông chữ monospace */
-}
-
-code {
-  color: #d63384; /* Màu chữ cho mã nguồn */
-}
-
-/* Định dạng cho lớp language-typescript */
-.language-typescript {
-  color: #007acc; /* Màu chữ đặc biệt cho TypeScript */
-}
-
-/* Tùy chọn thêm để làm nổi bật cú pháp (nếu cần) */
-.language-typescript .keyword {
-  color: #0000ff; /* Màu cho từ khóa */
-}
-
-.language-typescript .string {
-  color: #a31515; /* Màu cho chuỗi ký tự */
-}
-
-.language-typescript .comment {
-  color: #008000; /* Màu cho chú thích */
-}
+    background-color: #f5f5f5; /* Màu nền sáng */
+    border: 1px solid #ddd; /* Viền nhẹ */
+    border-radius: 4px; /* Bo góc */
+    padding: 10px; /* Khoảng cách bên trong */
+    overflow: auto; /* Cuộn khi nội dung quá dài */
+    font-family: monospace; /* Phông chữ monospace */
+  }
+  
+  code {
+    color: #d63384; /* Màu chữ cho mã nguồn */
+  }
+  
+  /* Định dạng cho lớp language-typescript */
+  .language-typescript {
+    color: #007acc; /* Màu chữ đặc biệt cho TypeScript */
+  }
+  
+  /* Tùy chọn thêm để làm nổi bật cú pháp (nếu cần) */
+  .language-typescript .keyword {
+    color: #0000ff; /* Màu cho từ khóa */
+  }
+  
+  .language-typescript .string {
+    color: #a31515; /* Màu cho chuỗi ký tự */
+  }
+  
+  .language-typescript .comment {
+    color: #008000; /* Màu cho chú thích */
+  }
