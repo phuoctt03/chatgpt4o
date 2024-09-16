@@ -29,19 +29,24 @@ const chatMode = [
   "You will be presented with user reviews and your job is to provide a set of tags from the following list. Provide your answer in bullet point form. Choose ONLY from the list of tags provided here (choose either the positive or the negative tag but NOT both):\n    \n    - Provides good value for the price OR Costs too much\n    - Works better than expected OR Did not work as well as expected\n    - Includes essential features OR Lacks essential features\n    - Easy to use OR Difficult to use\n    - High quality and durability OR Poor quality and durability\n    - Easy and affordable to maintain or repair OR Difficult or costly to maintain or repair\n    - Easy to transport OR Difficult to transport\n    - Easy to store OR Difficult to store\n    - Compatible with other devices or systems OR Not compatible with other devices or systems\n    - Safe and user-friendly OR Unsafe or hazardous to use\n    - Excellent customer support OR Poor customer support\n    - Generous and comprehensive warranty OR Limited or insufficient warranty",
   "",
   "",
-]
+];
+
 let modeChat;
 let apiKey;
 let tokenLocal = localStorage.getItem('apiKey');
 let modelGPT = "gpt-4o";
 let token = document.getElementById('token');
-if ( tokenLocal !== '' ) {
+let history = []; // Added history variable
+
+if (tokenLocal !== '') {
   token.value = tokenLocal;
 }
+
 function mode(number) {
-  modeChat = chatMode[number-1];
+  modeChat = chatMode[number - 1];
   console.log(modeChat);
 }
+
 function signin() {
   if (token.style.display === 'block') {
     apiKey = token.value;
@@ -51,10 +56,12 @@ function signin() {
     token.style.display = 'block';
   }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
   const chatBox = document.getElementById('chat-box');
   const token = document.getElementById('token');
+
   async function handleSubmit() {
     const question = input.value.trim();
 
@@ -65,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     input.value = '';
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
 
+    // Add user's message to history
+    history.push({ role: 'user', content: question });
+
     // Send request to the API
     const apiKey = localStorage.getItem('apiKey');
     const url = 'https://models.inference.ai.azure.com/chat/completions';
@@ -72,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const requestBody = {
       messages: [
         { role: 'system', content: modeChat || '' },
-        { role: 'user', content: question }
+        ...history // Include the entire message history
       ],
       model: modelGPT,
       temperature: 1,
@@ -91,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (response.status === 429) {
       chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
-      modelGPT = "gpt-4o-mini"
+      modelGPT = "gpt-4o-mini";
       const requestBody = {
         messages: [
           { role: 'system', content: modeChat || '' },
-          { role: 'user', content: question }
+          ...history // Include the entire message history
         ],
         model: modelGPT,
         temperature: 1,
@@ -112,23 +122,26 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(requestBody)
       });
       const data = await response.json();
-
+      
       // Extract answer from the response
       const answer = data.choices[0].message.content;
 
-      // Add AI's message to the chat box
+           // Add AI's message to the chat box and history
       chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
       chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
       return;
     }
+
     const data = await response.json();
 
     // Extract answer from the response
     const answer = data.choices[0].message.content;
 
-    // Add AI's message to the chat box
+    // Add AI's message to the chat box and history
     chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    history.push({ role: 'assistant', content: answer }); // Add AI's message to history
   }
 
   input.addEventListener('keypress', (event) => {
@@ -137,12 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSubmit();
     }
   });
+
   token.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
         signin();
     }
   });
-  
+
   document.querySelector('#send').addEventListener('click', handleSubmit);
 });
