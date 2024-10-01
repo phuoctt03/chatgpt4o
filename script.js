@@ -98,39 +98,42 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(requestBody)
     });
-
-    if (response.status === 429) {
-      chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
-      modelGPT = "gpt-4o-mini";
-      const requestBody = {
-        messages: [
-          { role: 'system', content: modeChat || '' },
-          ...history // Include the entire message history
-        ],
-        model: modelGPT,
-        temperature: 1,
-        max_tokens: 4096,
-        top_p: 1
-      };
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(requestBody)
-      });
-      const data = await response.json();
-      
-      // Extract answer from the response
-      const answer = data.choices[0].message.content;
-
-           // Add AI's message to the chat box and history
-      chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
-      return;
+    if (response.status !== 200) {
+      if (response.status === 429) {
+        chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
+        modelGPT = "gpt-4o-mini";
+        const requestBody = {
+          messages: [
+            { role: 'system', content: modeChat || '' },
+            ...history // Include the entire message history
+          ],
+          model: modelGPT,
+          temperature: 1,
+          max_tokens: 4096,
+          top_p: 1
+        };
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+        const data = await response.json();
+        
+        // Extract answer from the response
+        const answer = data.choices[0].message.content;
+  
+             // Add AI's message to the chat box and history
+        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+        history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+        return;
+      } else {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">${response.error}</div>`);
+      }
     }
 
     const data = await response.json();
