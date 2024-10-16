@@ -33,13 +33,13 @@ const chatMode = [
 
 let modeChat;
 let apiKey;
-let tokenLocal = localStorage.getItem('apiKey');
 let modelGPT = "gpt-4o";
-let token = document.getElementById('token');
-let history = []; // Added history variable
+let history = []; // History for messages
 
-if (tokenLocal !== '') {
-  token.value = tokenLocal;
+const tokenElement = document.getElementById('token');
+const tokenLocal = localStorage.getItem('apiKey');
+if (tokenLocal) {
+  tokenElement.value = tokenLocal;
 }
 
 function mode(number) {
@@ -48,118 +48,99 @@ function mode(number) {
 }
 
 function signin() {
-  if (token.style.display === 'block') {
-    apiKey = token.value;
+  apiKey = tokenElement.value.trim();
+  if (apiKey) {
     localStorage.setItem('apiKey', apiKey);
-    token.style.display = 'none';
+    tokenElement.style.display = 'none';
   } else {
-    token.style.display = 'block';
+    tokenElement.style.display = 'block';
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
   const chatBox = document.getElementById('chat-box');
-  const token = document.getElementById('token');
+
+  async function sendRequest(model) {
+    const url = 'https://models.inference.ai.azure.com/chat/completions';
+    const requestBody = {
+      messages: [
+        { role: 'system', content: modeChat || '' },
+        ...history
+      ],
+      model: model,
+      temperature: 1,
+      max_tokens: 4096,
+      top_p: 1
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('Error with request:', error.message);
+      return null;
+    }
+  }
 
   async function handleSubmit() {
     const question = input.value.trim();
-
     if (!question) return;
 
     // Add user's message to the chat box
     chatBox.innerHTML += `<div class="message user">${question}</div>`;
     input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
 
     // Add user's message to history
     history.push({ role: 'user', content: question });
 
-    // Send request to the API
-    const apiKey = localStorage.getItem('apiKey');
-    const url = 'https://models.inference.ai.azure.com/chat/completions';
-    
-    const requestBody = {
-      messages: [
-        { role: 'system', content: modeChat || '' },
-        ...history // Include the entire message history
-      ],
-      model: modelGPT,
-      temperature: 1,
-      max_tokens: 4096,
-      top_p: 1
-    };
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-    if (response.status !== 200) {
-      if (response.status === 429) {
-        chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
-        modelGPT = "gpt-4o-mini";
-        const requestBody = {
-          messages: [
-            { role: 'system', content: modeChat || '' },
-            ...history // Include the entire message history
-          ],
-          model: modelGPT,
-          temperature: 1,
-          max_tokens: 4096,
-          top_p: 1
-        };
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(requestBody)
-        });
-        const data = await response.json();
-        
-        // Extract answer from the response
-        const answer = data.choices[0].message.content;
-  
-             // Add AI's message to the chat box and history
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-        history.push({ role: 'assistant', content: answer }); // Add AI's message to history
-        return;
-      } else {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${response.error}</div>`);
-      }
+    let answer = await sendRequest(modelGPT);
+
+    if (!answer && modelGPT === "gpt-4o") {
+      // Retry with the fallback model if the first attempt fails
+      modelGPT = "gpt-4o-mini";
+      answer = await sendRequest(modelGPT);
     }
 
-    const data = await response.json();
+    // Handle response or error
+    if (answer) {
+      chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+      history.push({ role: 'assistant', content: answer });
+    } else {
+      chatBox.innerHTML += `<div class="message ai">An error occurred. Please try again later.</div>`;
+    }
 
-    // Extract answer from the response
-    const answer = data.choices[0].message.content;
-
-    // Add AI's message to the chat box and history
-    chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
   input.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-        event.preventDefault();
-        handleSubmit();
+      event.preventDefault();
+      handleSubmit();
     }
   });
 
-  token.addEventListener('keypress', (event) => {
+  tokenElement.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-        event.preventDefault();
-        signin();
+      event.preventDefault();
+      signin();
     }
   });
 
   document.querySelector('#send').addEventListener('click', handleSubmit);
 });
+
