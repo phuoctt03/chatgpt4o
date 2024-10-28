@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify(requestBody)
     });
     if (response.status !== 200) {
+      chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
       if (response.status === 429) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
         modelGPT = "gpt-4o-mini";
@@ -129,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
         history.push({ role: 'assistant', content: answer }); // Add AI's message to history
         return;
-      } else {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${response.error}</div>`);
       }
     }
 
