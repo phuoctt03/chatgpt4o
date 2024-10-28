@@ -32,15 +32,11 @@ const chatMode = [
 ];
 
 let modeChat;
-let apiKey;
+let apiKey = localStorage.getItem('apiKey');
 let modelGPT = "gpt-4o";
 let history = []; // History for messages
 
 const tokenElement = document.getElementById('token');
-const tokenLocal = localStorage.getItem('apiKey');
-if (tokenLocal) {
-  tokenElement.value = tokenLocal;
-}
 
 function mode(number) {
   modeChat = chatMode[number - 1];
@@ -48,12 +44,12 @@ function mode(number) {
 }
 
 function signin() {
-  apiKey = tokenElement.value.trim();
-  if (apiKey) {
+  if (token.style.display === 'block') {
+    apiKey = tokenElement.value;
     localStorage.setItem('apiKey', apiKey);
-    tokenElement.style.display = 'none';
+    token.style.display = 'none';
   } else {
-    tokenElement.style.display = 'block';
+    token.style.display = 'block';
   }
 }
 
