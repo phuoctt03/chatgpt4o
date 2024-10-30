@@ -37,9 +37,12 @@ let tokenLocal = localStorage.getItem('apiKey');
 let modelGPT = "gpt-4o";
 let token = document.getElementById('token');
 let history = []; // Added history variable
-
+let markdown = true;
 if (tokenLocal !== '') {
   token.value = tokenLocal;
+}
+function changeOutput() {
+  markdown = !markdown;
 }
 
 function mode(number) {
@@ -68,7 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!question) return;
 
     // Add user's message to the chat box
-    chatBox.innerHTML += `<div class="message user">${question}</div>`;
+    if (markdown) { 
+      chatBox.innerHTML += marked.parse(`<div class="message user">${question}</div>`);
+    } else {
+      chatBox.innerHTML += `<div class="message user">${question}</div>`;
+    }
     input.value = '';
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
 
@@ -98,10 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(requestBody)
     });
-    if (response.status !== 200) {
-      chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
+    if (response.status !== 200) {  
+      if (markdown) {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
+      } else {
+        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}</div>`;
+      }
       if (response.status === 429) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
+        if (markdown) {
+          chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
+        } else {
+          chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
+        }
         modelGPT = "gpt-4o-mini";
         const requestBody = {
           messages: [
@@ -125,8 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
         
         const answer = data.choices[0].message.content;
-  
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+        if (markdown) {
+          chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+        } else {
+          chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+        }
         chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
         history.push({ role: 'assistant', content: answer }); // Add AI's message to history
         return;
@@ -139,7 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const answer = data.choices[0].message.content;
 
     // Add AI's message to the chat box and history
-    chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+    if (markdown) {
+      chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+    } else {
+      chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+    }
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
     history.push({ role: 'assistant', content: answer }); // Add AI's message to history
   }
