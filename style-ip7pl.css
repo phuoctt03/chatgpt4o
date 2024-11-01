@@ -25,4 +25,7 @@
         left: calc(0px);
         position: relative;
     }
+    .switchLanguage {
+        left: -37%;
+    }
 }

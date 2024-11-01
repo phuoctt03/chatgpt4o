@@ -30,7 +30,73 @@ const chatMode = [
   "",
   "",
 ];
+// Mảng chứa tiêu đề tiếng Việt
+const tieuDe = [
+  "Chỉnh ngữ pháp",
+  "Tóm tắt cho học sinh lớp hai",
+  "Phân tích dữ liệu không cấu trúc",
+  "Dịch sang biểu tượng cảm xúc",
+  "Tính thời gian phức tạp",
+  "Giải thích mã",
+  "Từ khóa",
+  "Tạo tên sản phẩm",
+  "Sửa lỗi Python",
+  "Tạo bảng tính",
+  "Phân loại tweet",
+  "Trích xuất mã sân bay",
+  "Tâm trạng sang màu sắc",
+  "Tạo ý tưởng về VR thể dục",
+  "Marv, chatbot châm biếm",
+  "Chỉ dẫn từng bước",
+  "Câu hỏi phỏng vấn",
+  "Hàm từ đặc tả",
+  "Cải thiện hiệu quả mã",
+  "Tạo trang web đơn",
+  "Viết rap battle",
+  "Viết bản ghi nhớ",
+  "Chatbot biểu tượng cảm xúc",
+  "Dịch",
+  "Gia sư Socratic",
+  "Ngôn ngữ tự nhiên sang SQL",
+  "Tóm tắt ghi chú cuộc họp",
+  "Phân loại đánh giá",
+  "Thảo luận ưu và nhược điểm",
+  "Viết kế hoạch bài giảng"
+];
 
+// Mảng chứa nội dung tiếng Việt
+const noiDung = [
+  "Chuyển các câu không đúng ngữ pháp sang tiếng Anh chuẩn.",
+  "Đơn giản hóa văn bản phù hợp với trình độ của học sinh lớp hai.",
+  "Tạo bảng từ văn bản không có cấu trúc.",
+  "Dịch văn bản thông thường thành văn bản biểu tượng cảm xúc.",
+  "Tìm thời gian phức tạp của một hàm.",
+  "Giải thích một đoạn mã phức tạp.",
+  "Trích xuất từ khóa từ một đoạn văn bản.",
+  "Tạo tên sản phẩm từ mô tả và từ khóa.",
+  "Tìm và sửa lỗi trong mã nguồn.",
+  "Tạo bảng tính từ các loại dữ liệu khác nhau.",
+  "Phát hiện cảm xúc trong một tweet.",
+  "Trích xuất mã sân bay từ văn bản.",
+  "Chuyển một mô tả tâm trạng thành màu sắc.",
+  "Tạo ý tưởng cho trò chơi thực tế ảo thúc đẩy thể dục.",
+  "Marv là một chatbot vừa thực tế vừa châm biếm.",
+  "Chuyển ngôn ngữ tự nhiên thành chỉ dẫn từng bước.",
+  "Tạo câu hỏi phỏng vấn.",
+  "Tạo hàm Python từ một đặc tả.",
+  "Đưa ra ý tưởng để cải thiện hiệu suất mã Python.",
+  "Tạo một trang web một trang.",
+  "Tạo một trận đấu rap giữa hai nhân vật.",
+  "Tạo bản ghi nhớ công ty dựa trên các điểm cung cấp.",
+  "Tạo câu trả lời hội thoại chỉ sử dụng biểu tượng cảm xúc.",
+  "Dịch văn bản ngôn ngữ tự nhiên.",
+  "Tạo phản hồi theo phong cách thầy dạy Socrates.",
+  "Chuyển ngôn ngữ tự nhiên thành truy vấn SQL.",
+  "Tóm tắt ghi chú cuộc họp bao gồm cuộc thảo luận chung, các hành động và chủ đề tương lai.",
+  "Phân loại đánh giá của người dùng dựa trên tập hợp các thẻ.",
+  "Phân tích ưu và nhược điểm của một chủ đề được đưa ra.",
+  "Tạo kế hoạch bài giảng cho một chủ đề cụ thể."
+];
 let modeChat;
 let apiKey;
 let tokenLocal = localStorage.getItem('apiKey');
@@ -44,7 +110,14 @@ if (tokenLocal !== '') {
 function changeOutput() {
   markdown = !markdown;
 }
-
+function changeLanguage() {
+  const large = document.getElementsByClassName('icon-item-title body-large')
+  const small = document.getElementsByClassName('icon-item-desc body-small')
+  for (let i = 0; i < large.length; i++) {
+    large[i].textContent = tieuDe[i];
+    small[i].textContent = noiDung[i];
+  }
+}
 function mode(number) {
   modeChat = chatMode[number - 1];
   console.log(modeChat);
