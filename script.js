@@ -109,7 +109,7 @@ if (tokenLocal !== '') {
 }
 function changeOutput() {
   markdown = !markdown;
-  history.push({ role: 'user', content: 'từ giờ hãy trả lời tôi bằng mã html thay vì markdown' });
+  history.push({ role: 'user', content: 'từ giờ hãy trả lời tôi bằng các thẻ html thay vì markdown' });
 }
 function changeLanguage() {
   const large = document.getElementsByClassName('icon-item-title body-large')
