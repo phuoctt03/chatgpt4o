@@ -168,9 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
       model: modelGPT,
       temperature: 1,
       max_tokens: 4096,
-      top_p: 1
+      top_p: 1,
+      stream: true
     };
-    
+    console.log('check1');
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -179,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(requestBody)
     });
+    console.log('check2');
     if (response.status !== 200) {  
       if (markdown) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
@@ -224,20 +226,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder(); // Giải mã stream thành text
+    let done = false;
 
-    const data = await response.json();
-
+    // Bắt đầu đọc stream từng phần
+    while (!done) {
+      const { value, done: readerDone } = await reader.read();
+      done = readerDone;
+      const chunkValue = decoder.decode(value, { stream: true });
+      // console.log(chunkValue);
+      const jsonString = chunkValue.trim().replace(/^data: /, '');
+      console.log(jsonString);
+      console.log(jsonString.choices?.delta?.content);
+      // Chuyển đổi chuỗi JSON thành đối tượng JavaScript
+      const parsedData = JSON.parse(jsonString);
+      console.log(parsedData);
+      console.log(parsedData.choices[0].delta.content || '');
+    }
+    // console.log(response.json());
     // Extract answer from the response
-    const answer = data.choices[0].message.content;
+    // const answer = data.choices[0].message.content;
+    // for await (const part of response.json()) {
+    //   console.log(part);
+    //   // message += part.choices[0]?.delta?.content || ''
+    // }
+    // const answer = data.choices[0]?.delta?.content || '';
 
     // Add AI's message to the chat box and history
-    if (markdown) {
-      chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-    } else {
-      chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-    }
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+    // if (markdown) {
+    //   chatBox.innerHTML += marked.parse(`<div class="message ai">${message}</div>`);
+    // } else {
+    //   chatBox.innerHTML += `<div class="message ai">${message}</div>`;
+    // }
+    // chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    // history.push({ role: 'assistant', content: message }); // Add AI's message to history
   }
 
   input.addEventListener('keypress', (event) => {
