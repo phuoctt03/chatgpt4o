@@ -104,13 +104,17 @@ let modelGPT = "gpt-4o";
 let token = document.getElementById('token');
 let history = []; // Added history variable
 let markdown = true;
+
 if (tokenLocal !== '') {
   token.value = tokenLocal;
 }
+
 function changeOutput() {
   markdown = !markdown;
-  history.push({ role: 'user', content: 'từ giờ hãy trả lời tôi bằng các thẻ html thay vì markdown' });
+  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng mã html thay vì mã markdown' });
+  history.push({ role: 'assistant', content: 'Tất nhiên rồi từ giờ tôi sẽ trả lời bằng mã html thay vì mã markdown' });
 }
+
 function changeLanguage() {
   const large = document.getElementsByClassName('icon-item-title body-large')
   const small = document.getElementsByClassName('icon-item-desc body-small')
@@ -119,6 +123,7 @@ function changeLanguage() {
     small[i].textContent = noiDung[i];
   }
 }
+
 function mode(number) {
   modeChat = chatMode[number - 1];
   console.log(modeChat);
@@ -155,10 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add user's message to history
     history.push({ role: 'user', content: question });
-
-    // Send request to the API
-    const apiKey = localStorage.getItem('apiKey');
-    const url = 'https://models.inference.ai.azure.com/chat/completions';
     
     const requestBody = {
       messages: [
@@ -171,6 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
       top_p: 1
     };
     
+    // Send request to the API
+    const apiKey = localStorage.getItem('apiKey');
+    const url = 'https://models.inference.ai.azure.com/chat/completions';
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -179,65 +183,74 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(requestBody)
     });
-    if (response.status !== 200) {  
+    if (response.status === 200) {  
+      const data = await response.json();
+
+      // Extract answer from the response
+      const answer = data.choices[0].message.content;
+      console.log('data ', data)
+      console.log('answer', answer);
+      // Add AI's message to the chat box and history
+      if (markdown) {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+      } else {
+        chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+    } else if (response.status === 429) {
+      if (markdown) {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
+      } else {
+        chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
+      }
+      modelGPT = "gpt-4o-mini";
+      const requestBody = {
+        messages: [
+          { role: 'system', content: modeChat || '' },
+          ...history
+        ],
+        model: modelGPT,
+        temperature: 1,
+        max_tokens: 4096,
+        top_p: 1
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+      const data = await response.json();
+      
+      const answer = data.choices[0].message.content;
+      if (markdown) {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
+      } else {
+        chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+    } else if (response.status === 400) {
+      if (markdown) {
+        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`);
+        history.pop();
+      } else {
+        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`;
+        history.pop();
+      }
+    } else {
       if (markdown) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
+        history.pop();
       } else {
         chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}</div>`;
-      }
-      if (response.status === 429) {
-        if (markdown) {
-          chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
-        } else {
-          chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
-        }
-        modelGPT = "gpt-4o-mini";
-        const requestBody = {
-          messages: [
-            { role: 'system', content: modeChat || '' },
-            ...history
-          ],
-          model: modelGPT,
-          temperature: 1,
-          max_tokens: 4096,
-          top_p: 1
-        };
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify(requestBody)
-        });
-        const data = await response.json();
-        
-        const answer = data.choices[0].message.content;
-        if (markdown) {
-          chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-        } else {
-          chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-        }
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-        history.push({ role: 'assistant', content: answer }); // Add AI's message to history
-        return;
+        history.pop();
       }
     }
-
-    const data = await response.json();
-
-    // Extract answer from the response
-    const answer = data.choices[0].message.content;
-
-    // Add AI's message to the chat box and history
-    if (markdown) {
-      chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-    } else {
-      chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-    }
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    history.push({ role: 'assistant', content: answer }); // Add AI's message to history
   }
 
   input.addEventListener('keypress', (event) => {
