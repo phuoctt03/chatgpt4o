@@ -111,9 +111,8 @@ if (tokenLocal !== '') {
 
 function changeOutput() {
   markdown = !markdown;
-  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng thẻ html thay vì hiển thị markdown' });
-  history.push({ role: 'assistant', content: 'Tất nhiên rồi từ giờ tôi sẽ trả lời bằng thẻ html thay vì hiển thị markdown' });
-  history.push({ role: 'user', content: 'không cần ```html chỉ cần thay các hiển thị markdown thành html là được' });
+  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
+  history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
 }
 
 function changeLanguage() {
@@ -192,15 +191,21 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('data ', data)
       console.log('answer', answer);
       // Add AI's message to the chat box and history
+      if (!answer) {
+        history.pop();
+        if (markdown) {
+          chatBox.innerHTML += marked.parse(`<div class="message ai">Đường truyền có chút sai sót xin vui lòng thử lại.</div>`);
+        } else {
+          chatBox.innerHTML += `<div class="message ai">Đường truyền có chút sai sót xin vui lòng thử lại.</div>`;
+        }
+        return;
+      }
       if (markdown) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
       } else {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
-      if (!answer) {
-        history.pop();
-        return;
-      }
+      
       chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 429) {
@@ -241,16 +246,16 @@ document.addEventListener('DOMContentLoaded', () => {
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 400) {
       if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`);
+        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi</div>`);
       } else {
-        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`;
+        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi</div>`;
       }
       history.pop();
     } else {
       if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
+        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại</div>`);
       } else {
-        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}</div>`;
+        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại</div>`;
       }
       history.pop();
     }
