@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
-      if (answer !== "") {
+      if (!answer) {
         history.pop();
         return;
       }
