@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       // Extract answer from the response
-      const answer = data.choices[0].message.content;
+      const answer = data.choices[0].message?.content;
       console.log('data ', data)
       console.log('answer', answer);
       // Add AI's message to the chat box and history
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
-      if (!aswer) {
+      if (answer !== "") {
         history.pop();
         return;
       }
