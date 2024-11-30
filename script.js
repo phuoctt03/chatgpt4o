@@ -111,8 +111,9 @@ if (tokenLocal !== '') {
 
 function changeOutput() {
   markdown = !markdown;
-  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng mã html thay vì mã markdown' });
-  history.push({ role: 'assistant', content: 'Tất nhiên rồi từ giờ tôi sẽ trả lời bằng mã html thay vì mã markdown' });
+  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng thẻ html thay vì hiển thị markdown' });
+  history.push({ role: 'assistant', content: 'Tất nhiên rồi từ giờ tôi sẽ trả lời bằng thẻ html thay vì hiển thị markdown' });
+  history.push({ role: 'user', content: 'không cần ```html chỉ cần thay các hiển thị markdown thành html là được' });
 }
 
 function changeLanguage() {
