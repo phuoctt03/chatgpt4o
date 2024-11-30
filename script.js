@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function handleSubmit() {
     const question = input.value.trim();
-
+    document.getElementById('question').blur();
     window.scrollTo({
       top: 0,
     });
