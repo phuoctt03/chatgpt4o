@@ -196,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
+      if (!aswer) {
+        history.pop();
+        return;
+      }
       chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 429) {
@@ -237,19 +241,17 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (response.status === 400) {
       if (markdown) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`);
-        history.pop();
       } else {
         chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, hỏi câu khác</div>`;
-        history.pop();
       }
+      history.pop();
     } else {
       if (markdown) {
         chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}</div>`);
-        history.pop();
       } else {
         chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}</div>`;
-        history.pop();
       }
+      history.pop();
     }
   }
 
