@@ -25,6 +25,13 @@
         left: calc(0px);
         position: relative;
     }
+    .switch {
+        top: -25px;
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
     .switchLanguage {
         left: -37%;
     }
