@@ -210,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
       
-      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 429) {
       if (markdown) {
@@ -246,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
       }
-      chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+      
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 400) {
       if (markdown) {
@@ -263,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       history.pop();
     }
+    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
   }
 
   input.addEventListener('keypress', (event) => {
