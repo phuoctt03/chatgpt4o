@@ -147,6 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function handleSubmit() {
     const question = input.value.trim();
 
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Cuộn mượt
+    });
+
     if (!question) return;
 
     // Add user's message to the chat box
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add user's message to history
     history.push({ role: 'user', content: question });
-    
+
     const requestBody = {
       messages: [
         { role: 'system', content: modeChat || '' },
