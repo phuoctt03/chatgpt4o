@@ -102,7 +102,8 @@ let apiKey;
 let tokenLocal = localStorage.getItem('apiKey');
 let modelGPT = "gpt-4o";
 let token = document.getElementById('token');
-let history = []; // Added history variable
+let date = new Date();
+let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}]; // Added history variable
 let markdown = true;
 
 if (tokenLocal !== '') {
