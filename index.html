@@ -13,7 +13,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js"></script>
 </head>
-<h1>ChatGPT 4o</h1>
+<h1>ChatGPT o1</h1>
 <div class="signinbtn" onclick="signin()">Sign in</div>
 <label class="switch">
     <input type="checkbox" onclick="changeOutput()">
@@ -22,6 +22,10 @@
 <label class="switchLanguage">
     <input type="checkbox" onclick="changeLanguage()">
     <span class="slider">vi</span>
+</label>
+<label class="switchModel">
+    <input type="checkbox" onclick="changeModel()">
+    <span class="slider">model</span>
 </label>
 <input type="password" id="token" name="token" placeholder="TOKEN">
 <header>

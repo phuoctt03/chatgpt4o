@@ -39,6 +39,15 @@ h1{
     left: -46%;
 }
 
+.switchModel {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    top: -8px;
+    left: -46%;
+}
+
 .slider {
     position: absolute;
     cursor: pointer;

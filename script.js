@@ -100,10 +100,10 @@ const noiDung = [
 let modeChat;
 let apiKey;
 let tokenLocal = localStorage.getItem('apiKey');
-let modelGPT = "gpt-4o";
+let modelGPT = "o1-preview";
 let token = document.getElementById('token');
 let date = new Date();
-let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}]; // Added history variable
+let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
 let markdown = true;
 
 if (tokenLocal !== '') {
@@ -122,6 +122,14 @@ function changeLanguage() {
   for (let i = 0; i < large.length; i++) {
     large[i].textContent = tieuDe[i];
     small[i].textContent = noiDung[i];
+  }
+}
+
+function changeModel() {
+  if (modelGPT==='o1-preview') {
+    modelGPT = 'gpt-4o';
+  } else {
+    modelGPT = 'o1-preview';
   }
 }
 
@@ -218,7 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
       }
-      modelGPT = "gpt-4o-mini";
+      
+      if (modelGPT==='o1-preview'){
+        modelGPT = "o1-mini";
+      } else {
+        modelGPT = 'gpt-4o-mini';
+      }
       const requestBody = {
         messages: [
           { role: 'system', content: modeChat || 'You are a helpful assistant.' },
