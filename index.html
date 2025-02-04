@@ -10,24 +10,42 @@
     <link rel="stylesheet" href="style-ip7pl.css">
     <link rel="stylesheet" href="style-800px.css">
     <link rel="icon" href="chatgpt.png" type="image/png">
-    
     <script src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js"></script>
 </head>
-<h1>ChatGPT o1</h1>
+<h1>ChatGPT</h1>
 <div class="signinbtn" onclick="signin()">Sign in</div>
-<label class="switch">
-    <input type="checkbox" onclick="changeOutput()">
-    <span class="slider"></span>
-</label>
-<label class="switchLanguage">
-    <input type="checkbox" onclick="changeLanguage()">
-    <span class="slider">vi</span>
-</label>
-<label class="switchModel">
-    <input type="checkbox" onclick="changeModel()">
-    <span class="slider">model</span>
-</label>
+
+<div class="switch-container">
+    <div class="signinbtn" onclick="signin()">Sign in</div>
+
+    <label class="switch">
+        <input type="checkbox" id="outputSwitch" onchange="changeOutput()">
+        <span class="slider"></span>
+    </label>
+    <span class="label-text">Output</span>
+
+    <label class="switch">
+        <input type="checkbox" id="languageSwitch" onchange="changeLanguage()">
+        <span class="slider" id="languageLabel">🇬🇧</span>
+    </label>
+    <span class="label-text">Language</span>
+
+    <label class="switch">
+        <select id="modelSelect" onchange="changeModel(this.value)">
+            <option value="gpt-4o-mini">gpt 4o mini</option>
+            <option value="gpt-4o">gpt 4o</option>
+            <option value="DeepSeek-R1">DeepSeek R1</option>
+            <option value="o1-mini">o1 mini</option>
+            <option value="o1-preview">o1 preview</option>
+            <option value="o1">o1</option>
+            <option value="o3-mini">o3 mini</option>
+        </select>        
+    </label>
+    <span class="label-text">Model</span>
+</div>
+
 <input type="password" id="token" name="token" placeholder="TOKEN">
+
 <header>
     <div class="examples-grid">
         <div role="button" class="icon-item" onclick="mode(1)">

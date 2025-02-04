@@ -100,7 +100,7 @@ const noiDung = [
 let modeChat;
 let apiKey;
 let tokenLocal = localStorage.getItem('apiKey');
-let modelGPT = "o1-preview";
+let modelGPT = "gpt-4o-mini";
 let token = document.getElementById('token');
 let date = new Date();
 let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
@@ -112,8 +112,13 @@ if (tokenLocal !== '') {
 
 function changeOutput() {
   markdown = !markdown;
-  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
-  history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
+  if (!markdown) {
+    history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
+    history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
+  } else {
+    history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng markdown thay vì html' });
+    history.push({ role: 'assistant', content: 'Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng markdown. Hãy bắt đầu!' });
+  }
 }
 
 function changeLanguage() {
@@ -123,14 +128,19 @@ function changeLanguage() {
     large[i].textContent = tieuDe[i];
     small[i].textContent = noiDung[i];
   }
+  const languageSwitch = document.getElementById("languageSwitch");
+  const label = document.getElementById("languageLabel");
+  if (!languageSwitch.checked) {
+    label.textContent = "🇬🇧";
+    console.log("Language switched to English");
+  } else {
+    label.textContent = "🇻🇳";
+    console.log("Language switched to Vietnamese");
+  }
 }
 
-function changeModel() {
-  if (modelGPT==='o1-preview') {
-    modelGPT = 'gpt-4o';
-  } else {
-    modelGPT = 'o1-preview';
-  }
+function changeModel(model) {
+  modelGPT = model;
 }
 
 function mode(number) {
@@ -226,12 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
       }
-      
-      if (modelGPT==='o1-preview'){
-        modelGPT = "o1-mini";
-      } else {
-        modelGPT = 'gpt-4o-mini';
-      }
+      modelGPT = 'gpt-4o-mini';
       const requestBody = {
         messages: [
           { role: 'system', content: modeChat || 'You are a helpful assistant.' },
