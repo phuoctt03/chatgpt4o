@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         model: modelGPT,
         temperature: 0.7,
         max_tokens: 4096,
-        top_p: 1
+        top_p: 0.9
       };
       
       const response = await fetch(url, {
