@@ -100,6 +100,8 @@ const noiDung = [
 let modeChat, modelGPT = "gpt-4o-mini", markdown = false;
 let date = new Date();
 let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
+history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
+history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
 const apiKey = localStorage.getItem('apiKey');
 const token = document.getElementById('token');
 if (apiKey) token.value = apiKey;
@@ -167,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Send request to the API
     const apiKey = localStorage.getItem('apiKey');
     if (!apiKey) {
-      addMessage("assistant", "⚠️ Bạn chưa nhập API Key.");
+      addMessage("ai", "⚠️ Bạn chưa nhập API Key.");
       alert('Bạn chưa nhập API Key.');
       return;
     }
