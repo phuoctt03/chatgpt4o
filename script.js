@@ -100,6 +100,8 @@ const noiDung = [
 let modeChat, modelGPT = "gpt-4o-mini", markdown = false;
 let date = new Date();
 let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
+const token = document.getElementById('token');
+const chatBox = document.getElementById('chat-box');
 
 const changeOutput = () => {
   markdown = !markdown;
@@ -122,8 +124,8 @@ const changeModel = model => modelGPT = model;
 const setMode = number => modeChat = chatModes[number - 1];
 
 const signin = () => {
-  tokenInput.style.display = tokenInput.style.display === "block" ? "none" : "block";
-  if (tokenInput.style.display === "none") localStorage.setItem("apiKey", tokenInput.value);
+  token.style.display = token.style.display === "block" ? "none" : "block";
+  if (token.style.display === "none") localStorage.setItem("apiKey", token.value);
 };
 
 const addMessage = (role, content) => {
@@ -131,11 +133,8 @@ const addMessage = (role, content) => {
   chatBox.scrollTop = chatBox.scrollHeight;
 };
 
-const chatBox = document.getElementById('chat-box');
-
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
-  const token = document.getElementById('token');
 
   async function handleSubmit() {
     const question = input.value.trim();
