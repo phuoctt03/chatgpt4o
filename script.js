@@ -97,70 +97,44 @@ const noiDung = [
   "Phân tích ưu và nhược điểm của một chủ đề được đưa ra.",
   "Tạo kế hoạch bài giảng cho một chủ đề cụ thể."
 ];
-let modeChat;
-let apiKey;
-let tokenLocal = localStorage.getItem('apiKey');
-let modelGPT = "gpt-4o-mini";
-let token = document.getElementById('token');
+let modeChat, modelGPT = "gpt-4o-mini", markdown = false;
 let date = new Date();
 let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
-let markdown = true;
 
-if (tokenLocal !== '') {
-  token.value = tokenLocal;
-}
-
-function changeOutput() {
+const changeOutput = () => {
   markdown = !markdown;
-  if (!markdown) {
-    history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
-    history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
-  } else {
+  if (markdown) {
     history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng markdown thay vì html' });
     history.push({ role: 'assistant', content: 'Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng markdown. Hãy bắt đầu!' });
+    return;
   }
+  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
+  history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
 }
 
-function changeLanguage() {
-  const large = document.getElementsByClassName('icon-item-title body-large')
-  const small = document.getElementsByClassName('icon-item-desc body-small')
-  for (let i = 0; i < large.length; i++) {
-    large[i].textContent = tieuDe[i];
-    small[i].textContent = noiDung[i];
-  }
-  const languageSwitch = document.getElementById("languageSwitch");
-  const label = document.getElementById("languageLabel");
-  if (!languageSwitch.checked) {
-    label.textContent = "🇬🇧";
-    console.log("Language switched to English");
-  } else {
-    label.textContent = "🇻🇳";
-    console.log("Language switched to Vietnamese");
-  }
+const changeLanguage = () => {
+  document.querySelectorAll('.icon-item-title, .body-large').forEach((el, i) => el.textContent = tieuDe[i]);
+  document.querySelectorAll('.icon-item-desc, .body-small').forEach((el, i) => el.textContent = noiDung[i]);
+  document.getElementById("languageLabel").textContent = document.getElementById("languageSwitch").checked ? "🇻🇳" : "🇬🇧";
 }
 
-function changeModel(model) {
-  modelGPT = model;
-}
+const changeModel = model => modelGPT = model;
+const setMode = number => modeChat = chatModes[number - 1];
 
-function mode(number) {
-  modeChat = chatMode[number - 1];
-  console.log(modeChat);
-}
+const signin = () => {
+  tokenInput.style.display = tokenInput.style.display === "block" ? "none" : "block";
+  if (tokenInput.style.display === "none") localStorage.setItem("apiKey", tokenInput.value);
+};
 
-function signin() {
-  if (token.style.display === 'block') {
-    apiKey = token.value;
-    localStorage.setItem('apiKey', apiKey);
-    token.style.display = 'none';
-  } else {
-    token.style.display = 'block';
-  }
-}
+const addMessage = (role, content) => {
+  chatBox.innerHTML += `<div class="message ${role}">${markdown ? marked.parse(content) : content}</div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+};
+
+const chatBox = document.getElementById('chat-box');
 
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('question');
-  const chatBox = document.getElementById('chat-box');
   const token = document.getElementById('token');
 
   async function handleSubmit() {
@@ -171,13 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (!question) return;
-
-    // Add user's message to the chat box
-    if (markdown) { 
-      chatBox.innerHTML += marked.parse(`<div class="message user">${question}</div>`);
-    } else {
-      chatBox.innerHTML += `<div class="message user">${question}</div>`;
-    }
+    addMessage("user", question);
     input.value = '';
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
 
@@ -186,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const requestBody = {
       messages: [
-        { role: 'system', content: modeChat || '' },
+        { role: 'system', content: modeChat || 'You are a helpful assistant.' },
         ...history // Include the entire message history
       ],
       model: modelGPT,
@@ -197,6 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Send request to the API
     const apiKey = localStorage.getItem('apiKey');
+    if (!apiKey) {
+      addMessage("assistant", "⚠️ Bạn chưa nhập API Key.");
+      alert('Bạn chưa nhập API Key.');
+      return;
+    }
     const url = 'https://models.inference.ai.azure.com/chat/completions';
     const response = await fetch(url, {
       method: 'POST',
@@ -216,26 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add AI's message to the chat box and history
       if (!answer) {
         history.pop();
-        if (markdown) {
-          chatBox.innerHTML += marked.parse(`<div class="message ai">Đường truyền có chút sai sót xin vui lòng thử lại.</div>`);
-        } else {
-          chatBox.innerHTML += `<div class="message ai">Đường truyền có chút sai sót xin vui lòng thử lại.</div>`;
-        }
+        addMessage("ai", "Đường truyền có chút sai sót xin vui lòng thử lại.");
         return;
       }
-      if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-      } else {
-        chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-      }
-      
+      addMessage("ai", answer);
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 429) {
-      if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Rate limited. Please wait.</div>`);
-      } else {
-        chatBox.innerHTML += `<div class="message ai">Rate limited. Please wait.</div>`;
-      }
+      addMessage("ai", "Rate limited. Please wait.");
       modelGPT = 'gpt-4o-mini';
       const requestBody = {
         messages: [
@@ -259,26 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       
       const answer = data.choices[0].message.content;
-      if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">${answer}</div>`);
-      } else {
-        chatBox.innerHTML += `<div class="message ai">${answer}</div>`;
-      }
-      
+      addMessage("ai", answer);
       history.push({ role: 'assistant', content: answer }); // Add AI's message to history
     } else if (response.status === 400) {
-      if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi</div>`);
-      } else {
-        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi</div>`;
-      }
+      addMessage("ai", `Error status: ${response.status} Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi`);
       history.pop();
     } else {
-      if (markdown) {
-        chatBox.innerHTML += marked.parse(`<div class="message ai">Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại</div>`);
-      } else {
-        chatBox.innerHTML += `<div class="message ai">Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại</div>`;
-      }
+      addMessage("ai", `Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại`);
       history.pop();
     }
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
