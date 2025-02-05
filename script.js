@@ -100,7 +100,9 @@ const noiDung = [
 let modeChat, modelGPT = "gpt-4o-mini", markdown = false;
 let date = new Date();
 let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
+const apiKey = localStorage.getItem('apiKey');
 const token = document.getElementById('token');
+if (apiKey) token.value = apiKey;
 const chatBox = document.getElementById('chat-box');
 
 const changeOutput = () => {
