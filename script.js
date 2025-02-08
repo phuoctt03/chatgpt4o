@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         model: modelGPT,
       };
-    if (!newModel.has(modelGPT)) {
+    if (!newModel.includes(modelGPT)) {
       requestBody = {
         messages: [
           { role: 'system', content: modeChat || 'You are a helpful assistant.' },
