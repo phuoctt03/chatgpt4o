@@ -106,6 +106,7 @@ const apiKey = localStorage.getItem('apiKey');
 const token = document.getElementById('token');
 if (apiKey) token.value = apiKey;
 const chatBox = document.getElementById('chat-box');
+const newModel = ['o3-mini','o1-mini','o1','o1-preview'];
 
 const changeOutput = () => {
   markdown = !markdown;
@@ -154,18 +155,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add user's message to history
     history.push({ role: 'user', content: question });
-
-    const requestBody = {
-      messages: [
-        { role: 'system', content: modeChat || 'You are a helpful assistant.' },
-        ...history // Include the entire message history
-      ],
-      model: modelGPT,
-      temperature: 1,
-      max_tokens: 4096,
-      top_p: 1
-    };
-    
+    let requestBody = {
+        messages: [
+          { role: 'developer', content: modeChat || 'You are a helpful assistant.' },
+          ...history // Include the entire message history
+        ],
+        model: modelGPT,
+      };
+    if (!newModel.has(modelGPT)) {
+      requestBody = {
+        messages: [
+          { role: 'system', content: modeChat || 'You are a helpful assistant.' },
+          ...history // Include the entire message history
+        ],
+        model: modelGPT,
+        temperature: 1,
+        max_tokens: 4096,
+        top_p: 1
+      };
+    }
     // Send request to the API
     const apiKey = localStorage.getItem('apiKey');
     if (!apiKey) {
