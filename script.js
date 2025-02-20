@@ -1,4 +1,4 @@
-const chatMode = [
+const chatModes = [
   "You will be provided with statements, and your task is to convert them to standard English.",
   "Summarize content you are provided with for a second-grade student.",
   "You will be provided with unstructured data, and your task is to parse it into CSV format.",
@@ -126,7 +126,7 @@ const changeLanguage = () => {
 }
 
 const changeModel = model => modelGPT = model;
-const setMode = number => modeChat = chatModes[number - 1];
+const mode = number => modeChat = chatModes[number - 1];
 
 const signin = () => {
   token.style.display = token.style.display === "block" ? "none" : "block";
