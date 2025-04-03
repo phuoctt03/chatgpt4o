@@ -175,51 +175,112 @@ const updateZoom = () => {
   localStorage.setItem("chatZoomLevel", zoomLevel)
 }
 
-// Image handling
-let currentImage = null
+// Fullscreen functionality
+const toggleFullscreen = () => {
+  const chatContainer = document.getElementById("chat-container")
+  const expandIcon = document.querySelector(".expand-icon")
+  const collapseIcon = document.querySelector(".collapse-icon")
 
-const handleImageUpload = (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    currentImage = e.target.result
-
-    // Show image preview
-    const previewContainer = document.createElement("div")
-    previewContainer.className = "image-preview"
-    previewContainer.id = "image-preview"
-
-    const previewImg = document.createElement("img")
-    previewImg.src = currentImage
-
-    const removeButton = document.createElement("span")
-    removeButton.className = "remove-image"
-    removeButton.innerHTML = "&times;"
-    removeButton.onclick = removeImagePreview
-
-    previewContainer.appendChild(previewImg)
-    previewContainer.appendChild(removeButton)
-
-    // Remove existing preview if any
-    const existingPreview = document.getElementById("image-preview")
-    if (existingPreview) {
-      existingPreview.remove()
-    }
-
-    document.querySelector(".input-area").insertBefore(previewContainer, document.getElementById("send"))
+  if (chatContainer.classList.contains("fullscreen-mode")) {
+    // Exit fullscreen
+    chatContainer.classList.remove("fullscreen-mode")
+    expandIcon.style.display = "block"
+    collapseIcon.style.display = "none"
+  } else {
+    // Enter fullscreen
+    chatContainer.classList.add("fullscreen-mode")
+    expandIcon.style.display = "none"
+    collapseIcon.style.display = "block"
   }
 
-  reader.readAsDataURL(file)
+  // Scroll to bottom after transition
+  setTimeout(() => {
+    chatBox.scrollTop = chatBox.scrollHeight
+  }, 300)
 }
 
-const removeImagePreview = () => {
-  const preview = document.getElementById("image-preview")
-  if (preview) {
-    preview.remove()
+// Image handling
+let uploadedImages = []
+
+const handleImageUpload = (event) => {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+
+  // Process each file
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      const imageData = e.target.result
+      uploadedImages.push(imageData)
+      addImagePreview(imageData, uploadedImages.length - 1)
+    }
+
+    reader.readAsDataURL(file)
   }
-  currentImage = null
+
+  // Reset the file input to allow selecting the same files again
+  event.target.value = ""
+}
+
+const addImagePreview = (imageData, index) => {
+  const previewContainer = document.getElementById("images-preview-container")
+
+  // Create preview element
+  const previewElement = document.createElement("div")
+  previewElement.className = "image-preview"
+  previewElement.dataset.index = index
+
+  // Create image element
+  const imageElement = document.createElement("img")
+  imageElement.src = imageData
+  imageElement.alt = "Image preview"
+
+  // Create remove button
+  const removeButton = document.createElement("div")
+  removeButton.className = "remove-image"
+  removeButton.innerHTML = "×"
+  removeButton.onclick = () => removeImagePreview(index)
+
+  // Append elements
+  previewElement.appendChild(imageElement)
+  previewElement.appendChild(removeButton)
+  previewContainer.appendChild(previewElement)
+
+  // Show the container if it was hidden
+  previewContainer.style.display = "flex"
+}
+
+const removeImagePreview = (index) => {
+  // Remove from array
+  uploadedImages.splice(index, 0, null) // Replace with null to maintain indices
+
+  // Remove from DOM
+  const previewElement = document.querySelector(`.image-preview[data-index="${index}"]`)
+  if (previewElement) {
+    previewElement.remove()
+  }
+
+  // Reindex remaining previews
+  reindexPreviews()
+
+  // Hide container if no images left
+  const previewContainer = document.getElementById("images-preview-container")
+  if (!document.querySelector(".image-preview")) {
+    previewContainer.style.display = "none"
+  }
+}
+
+const reindexPreviews = () => {
+  // Remove null values and reindex
+  uploadedImages = uploadedImages.filter((img) => img !== null)
+
+  // Update DOM elements
+  const previews = document.querySelectorAll(".image-preview")
+  previews.forEach((preview, i) => {
+    preview.dataset.index = i
+  })
 }
 
 const addImageMessage = (role, imageUrl) => {
@@ -302,17 +363,6 @@ const changeLanguage = () => {
 }
 
 const changeModel = (model) => (modelGPT = model)
-const mode = (number) => (modeChat = chatModes[number - 1])
-
-const signin = () => {
-  token.style.display = token.style.display === "block" ? "none" : "block"
-  if (token.style.display === "none") localStorage.setItem("apiKey", token.value)
-}
-
-const addMessage = (role, content) => {
-  chatBox.innerHTML += `<div class="message ${role}" style="font-size: ${zoomLevel}%">${markdown ? marked.parse(content) : content}</div>`
-  chatBox.scrollTop = chatBox.scrollHeight
-}
 
 // Initialize chatModes array if not already defined
 if (typeof chatModes === "undefined") {
@@ -350,6 +400,18 @@ if (typeof chatModes === "undefined") {
   ]
 }
 
+const mode = (number) => (modeChat = chatModes[number - 1])
+
+const signin = () => {
+  token.style.display = token.style.display === "block" ? "none" : "block"
+  if (token.style.display === "none") localStorage.setItem("apiKey", token.value)
+}
+
+const addMessage = (role, content) => {
+  chatBox.innerHTML += `<div class="message ${role}" style="font-size: ${zoomLevel}%">${markdown ? marked.parse(content) : content}</div>`
+  chatBox.scrollTop = chatBox.scrollHeight
+}
+
 // Initialize marked if not already defined
 if (typeof marked === "undefined") {
   window.marked = {
@@ -365,14 +427,18 @@ async function handleSubmit() {
     top: 0,
   })
 
-  if (!question && !currentImage) return
+  if (!question && uploadedImages.length === 0) return
 
   // Add user's message to chat
-  addMessage("user", question)
+  if (question) {
+    addMessage("user", question)
+  }
 
-  // If there's an image, add it to the chat
-  if (currentImage) {
-    addImageMessage("user", currentImage)
+  // Add images to chat
+  if (uploadedImages.length > 0) {
+    uploadedImages.forEach((imageData) => {
+      addImageMessage("user", imageData)
+    })
   }
 
   input.value = ""
@@ -385,15 +451,17 @@ async function handleSubmit() {
     messageContent.push({ type: "text", text: question })
   }
 
-  if (currentImage) {
-    messageContent.push({
-      type: "image_url",
-      image_url: { url: currentImage },
+  if (uploadedImages.length > 0) {
+    uploadedImages.forEach((imageData) => {
+      messageContent.push({
+        type: "image_url",
+        image_url: { url: imageData },
+      })
     })
   }
 
-  // Add to history - format depends on whether we have an image
-  if (currentImage) {
+  // Add to history - format depends on whether we have images
+  if (uploadedImages.length > 0) {
     history.push({
       role: "user",
       content: messageContent,
@@ -460,9 +528,11 @@ async function handleSubmit() {
     addMessage("ai", answer)
     history.push({ role: "assistant", content: answer }) // Add AI's message to history
 
-    // Clear image after sending
-    removeImagePreview()
-    currentImage = null
+    // Clear images after sending
+    uploadedImages = []
+    const previewContainer = document.getElementById("images-preview-container")
+    previewContainer.innerHTML = ""
+    previewContainer.style.display = "none"
   } else if (response.status === 429) {
     addMessage("ai", "Rate limited. Please wait.")
     modelGPT = "gpt-4o-mini"
@@ -491,9 +561,11 @@ async function handleSubmit() {
     addMessage("ai", answer)
     history.push({ role: "assistant", content: answer }) // Add AI's message to history
 
-    // Clear image after sending
-    removeImagePreview()
-    currentImage = null
+    // Clear images after sending
+    uploadedImages = []
+    const previewContainer = document.getElementById("images-preview-container")
+    previewContainer.innerHTML = ""
+    previewContainer.style.display = "none"
   } else if (response.status === 400) {
     addMessage(
       "ai",
@@ -510,11 +582,18 @@ async function handleSubmit() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("question")
+  const imagesPreviewContainer = document.getElementById("images-preview-container")
+
+  // Initially hide the images preview container
+  imagesPreviewContainer.style.display = "none"
 
   // Initialize zoom controls
   document.getElementById("zoom-in").addEventListener("click", zoomIn)
   document.getElementById("zoom-out").addEventListener("click", zoomOut)
   document.getElementById("zoom-reset").addEventListener("click", resetZoom)
+
+  // Initialize fullscreen toggle
+  document.getElementById("fullscreen-toggle").addEventListener("click", toggleFullscreen)
 
   // Initialize image upload
   document.getElementById("image-upload").addEventListener("change", handleImageUpload)
@@ -545,4 +624,43 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize language based on switch state
   changeLanguage()
 })
+
+// marked.js
+window.marked = {
+  parse: (text) => text,
+}
+
+// chatModes.js
+window.chatModes = [
+  "You will be provided with statements, and your task is to convert them to standard English.",
+  "Summarize content you are provided with for a second-grade student.",
+  "You will be provided with unstructured data, and your task is to parse it into CSV format.",
+  "You will be provided with text, and your task is to translate it into emojis. Do not use any regular text. Do your best with emojis only.",
+  "You will be provided with Python code, and your task is to calculate its time complexity.",
+  "You will be provided with a piece of code, and your task is to explain it in a concise way.",
+  "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
+  "You will be provided with a product description and seed words, and your task is to generate product names.",
+  "You will be provided with a piece of Python code, and your task is to find and fix bugs in it.",
+  "You are a helpful assistant",
+  "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative.",
+  "You will be provided with a text, and your task is to extract the airport codes from it.",
+  'You will be provided with a description of a mood, and your task is to generate the CSS code for a color that matches it. Write your output in json with a single key called "css_code".',
+  "You are a helpful assistant",
+  "You are Marv, a chatbot that reluctantly answers questions with sarcastic responses.",
+  "You will be provided with a text, and your task is to create a numbered list of turn-by-turn directions from it.",
+  "You are a helpful assistant",
+  "You are a helpful assistant",
+  "You will be provided with a piece of Python code, and your task is to provide ideas for efficiency improvements.",
+  "You are a helpful assistant",
+  "You are a helpful assistant",
+  "You are a helpful assistant",
+  "You will be provided with a message, and your task is to respond using emojis only.",
+  "You will be provided with a sentence in English, and your task is to translate it into French.",
+  "You are a Socratic tutor. Use the following principles in responding to students.",
+  "Given the following SQL tables, your job is to write queries given a user's request.",
+  "You will be provided with meeting notes, and your task is to summarize the meeting.",
+  "You will be presented with user reviews and your job is to provide a set of tags from the following list.",
+  "You are a helpful assistant",
+  "You are a helpful assistant",
+]
 
