@@ -1,80 +1,113 @@
 @media screen and (max-width: 500px) {
-    body{
-        display: flex;
-        flex-direction: column;
-        position: relative;
+    body {
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
-    header{
-        width: 100%;
-        left: 0px;
-        position: relative;
+    header {
+      width: 100%;
+      left: 0px;
+      position: relative;
     }
     .examples-grid {
-        top: 85vh;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-gap: 1%;
-        right:7px;
-        width:95%;
-        position: absolute;
+      top: 85vh;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 1%;
+      right: 7px;
+      width: 95%;
+      position: absolute;
     }
     .icon-item-title {
-        font-weight: 600;
+      font-weight: 600;
     }
     .chat-container {
-        left: calc(0px);
-        position: relative;
+      left: calc(0px);
+      position: relative;
+      height: 60vh;
+      border-radius: 8px;
     }
-
+  
     /* Wrapper chứa các switch + model */
     .switch-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     }
-
+  
     /* Switch chung */
     .switch {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
     }
-
+  
     /* Text */
     .label-text {
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
     }
-
+  
     /* Ẩn input checkbox */
     input[type="checkbox"] {
-        display: none;
+      display: none;
     }
-
+  
     /* Switch button */
     .slider {
-        width: 40px;
-        height: 20px;
-        border-radius: 50px;
-        position: relative;
-        transition: all 0.3s;
+      width: 40px;
+      height: 20px;
+      border-radius: 50px;
+      position: relative;
+      transition: all 0.3s;
     }
-
+  
     /* Khi bật switch */
     input:checked + .slider {
-        background: #28a745;
+      background: #28a745;
     }
-
+  
     /* Model select */
     select {
-        padding: 5px 10px;
-        font-size: 14px;
-        border-radius: 5px;
-        outline: none; /* Xóa viền vàng */
-    } 
-}
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      outline: none; /* Xóa viền vàng */
+    }
+  
+    .app-header {
+      padding: 8px;
+    }
+  
+    h1 {
+      font-size: 1.2rem;
+    }
+  
+    .icon-item {
+      padding: 10px;
+    }
+  
+    .icon-item-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+    }
+  
+    .message {
+      padding: 10px 12px;
+      font-size: 14px;
+      max-width: 95%;
+    }
+  
+    #modelSelect {
+      max-width: 120px;
+      font-size: 12px;
+    }
+  }
+  
+  

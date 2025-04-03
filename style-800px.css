@@ -1,29 +1,48 @@
 @media screen and (max-width: 800px) {
-    body{
-        display: flex;
-        flex-direction: column;
-        position: relative;
+    body {
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
-    header{
-        width: 100%;
-        left: 0px;
-        position: relative;
+    header {
+      width: 100%;
+      left: 0px;
+      position: relative;
     }
     .examples-grid {
-        top: 85vh;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-gap: 1%;
-        right:7px;
-        width:95%;
-        position: absolute;
+      top: 85vh;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-gap: 1%;
+      right: 7px;
+      width: 95%;
+      position: absolute;
     }
     .icon-item-title {
-        font-weight: 600;
+      font-weight: 600;
+    }
+    .icon-item-desc {
+      font-size: 12px;
     }
     .chat-container {
-        top: 10px;
-        left: calc(0px);
-        position: relative;
+      top: 10px;
+      left: calc(0px);
+      position: relative;
+      height: 50vh;
     }
-}
+  
+    .input-area {
+      padding: 8px;
+    }
+  
+    input[type="text"] {
+      padding: 10px;
+    }
+  
+    button {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  
+  

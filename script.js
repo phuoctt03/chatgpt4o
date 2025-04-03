@@ -1,35 +1,3 @@
-const chatModes = [
-  "You will be provided with statements, and your task is to convert them to standard English.",
-  "Summarize content you are provided with for a second-grade student.",
-  "You will be provided with unstructured data, and your task is to parse it into CSV format.",
-  "You will be provided with text, and your task is to translate it into emojis. Do not use any regular text. Do your best with emojis only.",
-  "You will be provided with Python code, and your task is to calculate its time complexity.",
-  "You will be provided with a piece of code, and your task is to explain it in a concise way.",
-  "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
-  "You will be provided with a product description and seed words, and your task is to generate product names.",
-  "You will be provided with a piece of Python code, and your task is to find and fix bugs in it.",
-  "You are a helpful assistant",
-  "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative.",
-  "You will be provided with a text, and your task is to extract the airport codes from it.",
-  "You will be provided with a description of a mood, and your task is to generate the CSS code for a color that matches it. Write your output in json with a single key called \"css_code\".",
-  "You are a helpful assistant",
-  "You are Marv, a chatbot that reluctantly answers questions with sarcastic responses.",
-  "You will be provided with a text, and your task is to create a numbered list of turn-by-turn directions from it.",
-  "You are a helpful assistant",
-  "You are a helpful assistant",
-  "You will be provided with a piece of Python code, and your task is to provide ideas for efficiency improvements.",
-  "You are a helpful assistant",
-  "You are a helpful assistant",
-  "You are a helpful assistant",
-  "You will be provided with a message, and your task is to respond using emojis only.",
-  "You will be provided with a sentence in English, and your task is to translate it into French.",
-  "You are a Socratic tutor. Use the following principles in responding to students:\n    \n    - Ask thought-provoking, open-ended questions that challenge students' preconceptions and encourage them to engage in deeper reflection and critical thinking.\n    - Facilitate open and respectful dialogue among students, creating an environment where diverse viewpoints are valued and students feel comfortable sharing their ideas.\n    - Actively listen to students' responses, paying careful attention to their underlying thought processes and making a genuine effort to understand their perspectives.\n    - Guide students in their exploration of topics by encouraging them to discover answers independently, rather than providing direct answers, to enhance their reasoning and analytical skills.\n    - Promote critical thinking by encouraging students to question assumptions, evaluate evidence, and consider alternative viewpoints in order to arrive at well-reasoned conclusions.\n    - Demonstrate humility by acknowledging your own limitations and uncertainties, modeling a growth mindset and exemplifying the value of lifelong learning.",
-  "Given the following SQL tables, your job is to write queries given a user’s request.\n    \n    CREATE TABLE Orders (\n      OrderID int,\n      CustomerID int,\n      OrderDate datetime,\n      OrderTime varchar(8),\n      PRIMARY KEY (OrderID)\n    );\n    \n    CREATE TABLE OrderDetails (\n      OrderDetailID int,\n      OrderID int,\n      ProductID int,\n      Quantity int,\n      PRIMARY KEY (OrderDetailID)\n    );\n    \n    CREATE TABLE Products (\n      ProductID int,\n      ProductName varchar(50),\n      Category varchar(50),\n      UnitPrice decimal(10, 2),\n      Stock int,\n      PRIMARY KEY (ProductID)\n    );\n    \n    CREATE TABLE Customers (\n      CustomerID int,\n      FirstName varchar(50),\n      LastName varchar(50),\n      Email varchar(100),\n      Phone varchar(20),\n      PRIMARY KEY (CustomerID)\n    );",
-  "You will be provided with meeting notes, and your task is to summarize the meeting as follows:\n    \n    -Overall summary of discussion\n    -Action items (what needs to be done and who is doing it)\n    -If applicable, a list of topics that need to be discussed more fully in the next meeting.",
-  "You will be presented with user reviews and your job is to provide a set of tags from the following list. Provide your answer in bullet point form. Choose ONLY from the list of tags provided here (choose either the positive or the negative tag but NOT both):\n    \n    - Provides good value for the price OR Costs too much\n    - Works better than expected OR Did not work as well as expected\n    - Includes essential features OR Lacks essential features\n    - Easy to use OR Difficult to use\n    - High quality and durability OR Poor quality and durability\n    - Easy and affordable to maintain or repair OR Difficult or costly to maintain or repair\n    - Easy to transport OR Difficult to transport\n    - Easy to store OR Difficult to store\n    - Compatible with other devices or systems OR Not compatible with other devices or systems\n    - Safe and user-friendly OR Unsafe or hazardous to use\n    - Excellent customer support OR Poor customer support\n    - Generous and comprehensive warranty OR Limited or insufficient warranty",
-  "You are a helpful assistant",
-  "You are a helpful assistant",
-];
 // Mảng chứa tiêu đề tiếng Việt
 const tieuDe = [
   "Chỉnh ngữ pháp",
@@ -61,14 +29,14 @@ const tieuDe = [
   "Tóm tắt ghi chú cuộc họp",
   "Phân loại đánh giá",
   "Thảo luận ưu và nhược điểm",
-  "Viết kế hoạch bài giảng"
-];
+  "Viết kế hoạch bài giảng",
+]
 
 // Mảng chứa nội dung tiếng Việt
 const noiDung = [
   "Chuyển các câu không đúng ngữ pháp sang tiếng Anh chuẩn.",
   "Đơn giản hóa văn bản phù hợp với trình độ của học sinh lớp hai.",
-  "Tạo bảng từ văn bản không có cấu trúc.",
+  "Tạo bảng từ văn bản không cấu trúc.",
   "Dịch văn bản thông thường thành văn bản biểu tượng cảm xúc.",
   "Tìm thời gian phức tạp của một hàm.",
   "Giải thích một đoạn mã phức tạp.",
@@ -95,166 +63,371 @@ const noiDung = [
   "Tóm tắt ghi chú cuộc họp bao gồm cuộc thảo luận chung, các hành động và chủ đề tương lai.",
   "Phân loại đánh giá của người dùng dựa trên tập hợp các thẻ.",
   "Phân tích ưu và nhược điểm của một chủ đề được đưa ra.",
-  "Tạo kế hoạch bài giảng cho một chủ đề cụ thể."
-];
-let modeChat, modelGPT = "gpt-4o-mini", markdown = false;
-let date = new Date();
-let history = [{role: 'user', content: `Hôm nay là ngày ${date}`}];
-history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
-history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
-const apiKey = localStorage.getItem('apiKey');
-const token = document.getElementById('token');
-if (apiKey) token.value = apiKey;
-const chatBox = document.getElementById('chat-box');
-const newModel = ['o3-mini','o1-mini','o1','o1-preview'];
+  "Tạo kế hoạch bài giảng cho một chủ đề cụ thể.",
+]
+
+// Mảng chứa tiêu đề tiếng Anh
+const englishTitles = [
+  "Grammar correction",
+  "Summarize for a 2nd grader",
+  "Parse unstructured data",
+  "Emoji Translation",
+  "Calculate time complexity",
+  "Explain code",
+  "Keywords",
+  "Product name generator",
+  "Python bug fixer",
+  "Spreadsheet creator",
+  "Tweet classifier",
+  "Airport code extractor",
+  "Mood to color",
+  "VR fitness idea generator",
+  "Marv the sarcastic chat bot",
+  "Turn by turn directions",
+  "Interview questions",
+  "Function from specification",
+  "Improve code efficiency",
+  "Single page website creator",
+  "Rap battle writer",
+  "Memo writer",
+  "Emoji chatbot",
+  "Translation",
+  "Socratic tutor",
+  "Natural language to SQL",
+  "Meeting notes summarizer",
+  "Review classifier",
+  "Pro and con discusser",
+  "Lesson plan writer",
+]
+
+// Mảng chứa nội dung tiếng Anh
+const englishDescriptions = [
+  "Convert ungrammatical statements into standard English.",
+  "Simplify text to a level appropriate for a second-grade student.",
+  "Create tables from unstructured text.",
+  "Translate regular text into emoji text.",
+  "Find the time complexity of a function.",
+  "Explain a complicated piece of code.",
+  "Extract keywords from a block of text.",
+  "Generate product names from a description and seed words.",
+  "Find and fix bugs in source code.",
+  "Create spreadsheets of various kinds of data.",
+  "Detect sentiment in a tweet.",
+  "Extract airport codes from text.",
+  "Turn a text description into a color.",
+  "Generate ideas for fitness promoting virtual reality games.",
+  "Marv is a factual chatbot that is also sarcastic.",
+  "Turn natural language to turn-by-turn directions.",
+  "Create interview questions.",
+  "Create a Python function from a specification.",
+  "Provide ideas for efficiency improvements to Python code.",
+  "Create a single page website.",
+  "Generate a rap battle between two characters.",
+  "Generate a company memo based on provided points.",
+  "Generate conversational replies using emojis only.",
+  "Translate natural language text.",
+  "Generate responses as a Socratic tutor.",
+  "Convert natural language into SQL queries.",
+  "Summarize meeting notes including overall discussion, action items, and future topics.",
+  "Classify user reviews based on a set of tags.",
+  "Analyze the pros and cons of a given topic.",
+  "Generate a lesson plan for a specific topic.",
+]
+
+let modeChat,
+  modelGPT = "gpt-4o-mini",
+  markdown = false
+const date = new Date()
+const history = [{ role: "user", content: `Hôm nay là ngày ${date}` }]
+history.push({
+  role: "user",
+  content:
+    "cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6",
+})
+history.push({
+  role: "assistant",
+  content:
+    "<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>",
+})
+const apiKey = localStorage.getItem("apiKey")
+const token = document.getElementById("token")
+if (apiKey) token.value = apiKey
+const chatBox = document.getElementById("chat-box")
+const newModel = ["o3-mini", "o1-mini", "o1", "o1-preview"]
+
+// Zoom functionality
+let zoomLevel = 100
+const zoomStep = 10
+const minZoom = 70
+const maxZoom = 200
+
+const updateZoom = () => {
+  document.getElementById("zoom-level").textContent = `${zoomLevel}%`
+  chatBox.style.fontSize = `${zoomLevel}%`
+
+  // Update all existing messages with the new zoom level
+  const messages = document.querySelectorAll(".message")
+  messages.forEach((message) => {
+    message.style.fontSize = `${zoomLevel}%`
+  })
+
+  // Save zoom level to localStorage
+  localStorage.setItem("chatZoomLevel", zoomLevel)
+}
+
+const zoomIn = () => {
+  if (zoomLevel < maxZoom) {
+    zoomLevel += zoomStep
+    updateZoom()
+  }
+}
+
+const zoomOut = () => {
+  if (zoomLevel > minZoom) {
+    zoomLevel -= zoomStep
+    updateZoom()
+  }
+}
+
+const resetZoom = () => {
+  zoomLevel = 100
+  updateZoom()
+}
 
 const changeOutput = () => {
-  markdown = !markdown;
+  markdown = !markdown
   if (markdown) {
-    history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng markdown thay vì html' });
+    history.push({ role: "user", content: "cuộc trò chuyện này từ giờ hãy trả lời tôi bằng markdown thay vì html" })
     history.push({ role: 'assistant', content: 'Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng markdown. Hãy bắt đầu!' });
-    return;
+    return
   }
-  history.push({ role: 'user', content: 'cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6' });
-  history.push({ role: 'assistant', content: '<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>' });
+  history.push({
+    role: "user",
+    content:
+      "cuộc trò chuyện này từ giờ hãy trả lời tôi bằng html thay vì markdown không cần ```html chỉ cần thay các hiển thị markdown thành html là được, không cần thẻ h1, h2, h3, h4, h5, h6",
+  })
+  history.push({
+    role: "assistant",
+    content:
+      "<p>Chắc chắn rồi! Bạn có thể đặt câu hỏi hoặc yêu cầu bất kỳ thông tin nào, và tôi sẽ trả lời bằng HTML. Hãy bắt đầu!</p>",
+  })
 }
 
 const changeLanguage = () => {
-  document.querySelectorAll('.icon-item-title, .body-large').forEach((el, i) => el.textContent = tieuDe[i]);
-  document.querySelectorAll('.icon-item-desc, .body-small').forEach((el, i) => el.textContent = noiDung[i]);
-  document.getElementById("languageLabel").textContent = document.getElementById("languageSwitch").checked ? "🇻🇳" : "🇬🇧";
+  const isVietnamese = document.getElementById("languageSwitch").checked
+  const titles = document.querySelectorAll('.icon-item-title, .body-large')
+  const descriptions = document.querySelectorAll(".icon-item-desc, .body-small")
+
+  if (isVietnamese) {
+    // Switch to Vietnamese
+    titles.forEach((el, i) => {
+      if (i < tieuDe.length) el.textContent = tieuDe[i]
+    })
+    descriptions.forEach((el, i) => {
+      if (i < noiDung.length) el.textContent = noiDung[i]
+    })
+    document.getElementById("languageLabel").textContent = "🇻🇳"
+  } else {
+    // Switch to English
+    titles.forEach((el, i) => {
+      if (i < englishTitles.length) el.textContent = englishTitles[i]
+    })
+    descriptions.forEach((el, i) => {
+      if (i < englishDescriptions.length) el.textContent = englishDescriptions[i]
+    })
+    document.getElementById("languageLabel").textContent = "🇬🇧"
+  }
 }
 
-const changeModel = model => modelGPT = model;
-const mode = number => modeChat = chatModes[number - 1];
+const changeModel = (model) => (modelGPT = model)
+const mode = (number) => (modeChat = chatModes[number - 1])
 
 const signin = () => {
-  token.style.display = token.style.display === "block" ? "none" : "block";
-  if (token.style.display === "none") localStorage.setItem("apiKey", token.value);
-};
+  token.style.display = token.style.display === "block" ? "none" : "block"
+  if (token.style.display === "none") localStorage.setItem("apiKey", token.value)
+}
 
 const addMessage = (role, content) => {
-  chatBox.innerHTML += `<div class="message ${role}">${markdown ? marked.parse(content) : content}</div>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
-};
+  chatBox.innerHTML += `<div class="message ${role}" style="font-size: ${zoomLevel}%">${markdown ? marked.parse(content) : content}</div>`
+  chatBox.scrollTop = chatBox.scrollHeight
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('question');
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("question")
+
+  // Initialize zoom controls
+  document.getElementById("zoom-in").addEventListener("click", zoomIn)
+  document.getElementById("zoom-out").addEventListener("click", zoomOut)
+  document.getElementById("zoom-reset").addEventListener("click", resetZoom)
+
+  // Load saved zoom level if exists
+  const savedZoom = localStorage.getItem("chatZoomLevel")
+  if (savedZoom) {
+    zoomLevel = Number.parseInt(savedZoom)
+    updateZoom()
+  }
 
   async function handleSubmit() {
-    const question = input.value.trim();
-    document.getElementById('question').blur();
+    const question = input.value.trim()
+    document.getElementById("question").blur()
     window.scrollTo({
       top: 0,
-    });
+    })
 
-    if (!question) return;
-    addMessage("user", question);
-    input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    if (!question) return
+    addMessage("user", question)
+    input.value = ""
+    chatBox.scrollTop = chatBox.scrollHeight // Scroll to bottom
 
     // Add user's message to history
-    history.push({ role: 'user', content: question });
+    history.push({ role: "user", content: question })
     let requestBody = {
-        messages: [
-          { role: 'developer', content: modeChat || 'You are a helpful assistant.' },
-          ...history // Include the entire message history
-        ],
-        model: modelGPT,
-      };
+      messages: [
+        { role: "developer", content: modeChat || "You are a helpful assistant." },
+        ...history, // Include the entire message history
+      ],
+      model: modelGPT,
+    }
     if (!newModel.includes(modelGPT)) {
       requestBody = {
         messages: [
-          { role: 'system', content: modeChat || 'You are a helpful assistant.' },
-          ...history // Include the entire message history
+          { role: "system", content: modeChat || "You are a helpful assistant." },
+          ...history, // Include the entire message history
         ],
         model: modelGPT,
         temperature: 1,
         max_tokens: 4096,
-        top_p: 1
-      };
+        top_p: 1,
+      }
     }
     // Send request to the API
-    const apiKey = localStorage.getItem('apiKey');
+    const apiKey = localStorage.getItem("apiKey")
     if (!apiKey) {
-      addMessage("ai", "⚠️ Bạn chưa nhập API Key.");
-      alert('Bạn chưa nhập API Key.');
-      return;
+      addMessage("ai", "⚠️ Bạn chưa nhập API Key.")
+      alert("Bạn chưa nhập API Key.")
+      return
     }
-    const url = 'https://models.inference.ai.azure.com/chat/completions';
+    const url = "https://models.inference.ai.azure.com/chat/completions"
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(requestBody)
-    });
-    if (response.status === 200) {  
-      const data = await response.json();
+      body: JSON.stringify(requestBody),
+    })
+    if (response.status === 200) {
+      const data = await response.json()
 
       // Extract answer from the response
-      const answer = data.choices[0].message?.content;
-      console.log('data ', data)
-      console.log('answer', answer);
+      const answer = data.choices[0].message?.content
+      console.log("data ", data)
+      console.log("answer", answer)
       // Add AI's message to the chat box and history
       if (!answer) {
-        history.pop();
-        addMessage("ai", "Đường truyền có chút sai sót xin vui lòng thử lại.");
-        return;
+        history.pop()
+        addMessage("ai", "Đường truyền có chút sai sót xin vui lòng thử lại.")
+        return
       }
-      addMessage("ai", answer);
-      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+      addMessage("ai", answer)
+      history.push({ role: "assistant", content: answer }) // Add AI's message to history
     } else if (response.status === 429) {
-      addMessage("ai", "Rate limited. Please wait.");
-      modelGPT = 'gpt-4o-mini';
+      addMessage("ai", "Rate limited. Please wait.")
+      modelGPT = "gpt-4o-mini"
       const requestBody = {
-        messages: [
-          { role: 'system', content: modeChat || 'You are a helpful assistant.' },
-          ...history
-        ],
+        messages: [{ role: "system", content: modeChat || "You are a helpful assistant." }, ...history],
         model: modelGPT,
         temperature: 0.7,
         max_tokens: 4096,
-        top_p: 0.9
-      };
-      
+        top_p: 0.9,
+      }
+
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify(requestBody)
-      });
-      const data = await response.json();
-      
-      const answer = data.choices[0].message.content;
-      addMessage("ai", answer);
-      history.push({ role: 'assistant', content: answer }); // Add AI's message to history
+        body: JSON.stringify(requestBody),
+      })
+      const data = await response.json()
+
+      const answer = data.choices[0].message.content
+      addMessage("ai", answer)
+      history.push({ role: "assistant", content: answer }) // Add AI's message to history
     } else if (response.status === 400) {
-      addMessage("ai", `Error status: ${response.status} Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi`);
-      history.pop();
+      addMessage(
+        "ai",
+        `Error status: ${response.status} Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi`,
+      )
+      history.pop()
     } else {
-      addMessage("ai", `Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại`);
-      history.pop();
+      addMessage("ai", `Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại`)
+      history.pop()
     }
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    chatBox.scrollTop = chatBox.scrollHeight // Scroll to bottom
   }
 
-  input.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        handleSubmit();
+  input.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      handleSubmit()
     }
-  });
+  })
 
-  token.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        signin();
+  token.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      signin()
     }
-  });
+  })
 
-  document.querySelector('#send').addEventListener('click', handleSubmit);
-});
+  document.querySelector("#send").addEventListener("click", handleSubmit)
+
+  // Initialize language based on switch state
+  changeLanguage()
+
+  // Initialize chatModes array if not already defined
+  if (typeof chatModes === "undefined") {
+    window.chatModes = [
+      "You will be provided with statements, and your task is to convert them to standard English.",
+      "Summarize content you are provided with for a second-grade student.",
+      "You will be provided with unstructured data, and your task is to parse it into CSV format.",
+      "You will be provided with text, and your task is to translate it into emojis. Do not use any regular text. Do your best with emojis only.",
+      "You will be provided with Python code, and your task is to calculate its time complexity.",
+      "You will be provided with a piece of code, and your task is to explain it in a concise way.",
+      "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
+      "You will be provided with a product description and seed words, and your task is to generate product names.",
+      "You will be provided with a piece of Python code, and your task is to find and fix bugs in it.",
+      "You are a helpful assistant",
+      "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative.",
+      "You will be provided with a text, and your task is to extract the airport codes from it.",
+      'You will be provided with a description of a mood, and your task is to generate the CSS code for a color that matches it. Write your output in json with a single key called "css_code".',
+      "You are a helpful assistant",
+      "You are Marv, a chatbot that reluctantly answers questions with sarcastic responses.",
+      "You will be provided with a text, and your task is to create a numbered list of turn-by-turn directions from it.",
+      "You are a helpful assistant",
+      "You are a helpful assistant",
+      "You will be provided with a piece of Python code, and your task is to provide ideas for efficiency improvements.",
+      "You are a helpful assistant",
+      "You are a helpful assistant",
+      "You are a helpful assistant",
+      "You will be provided with a message, and your task is to respond using emojis only.",
+      "You will be provided with a sentence in English, and your task is to translate it into French.",
+      "You are a Socratic tutor. Use the following principles in responding to students.",
+      "Given the following SQL tables, your job is to write queries given a user's request.",
+      "You will be provided with meeting notes, and your task is to summarize the meeting.",
+      "You will be presented with user reviews and your job is to provide a set of tags from the following list.",
+      "You are a helpful assistant",
+      "You are a helpful assistant",
+    ]
+  }
+
+  // Initialize marked if not already defined
+  if (typeof marked === "undefined") {
+    window.marked = {
+      parse: (text) => text,
+    }
+  }
+})
+
