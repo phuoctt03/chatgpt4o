@@ -54,8 +54,8 @@ const noiDung = [
   "Tạo hàm Python từ một đặc tả.",
   "Đưa ra ý tưởng để cải thiện hiệu suất mã Python.",
   "Tạo một trang web một trang.",
-  "Tạo một trận đấu rap giữa hai nhân vật.",
-  "Tạo bản ghi nhớ công ty dựa trên các điểm cung cấp.",
+  "Viết rap battle",
+  "Viết bản ghi nhớ công ty dựa trên các điểm cung cấp.",
   "Tạo câu trả lời hội thoại chỉ sử dụng biểu tượng cảm xúc.",
   "Dịch văn bản ngôn ngữ tự nhiên.",
   "Tạo phản hồi theo phong cách thầy dạy Socrates.",
@@ -175,6 +175,68 @@ const updateZoom = () => {
   localStorage.setItem("chatZoomLevel", zoomLevel)
 }
 
+// Image handling
+let currentImage = null
+
+const handleImageUpload = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    currentImage = e.target.result
+
+    // Show image preview
+    const previewContainer = document.createElement("div")
+    previewContainer.className = "image-preview"
+    previewContainer.id = "image-preview"
+
+    const previewImg = document.createElement("img")
+    previewImg.src = currentImage
+
+    const removeButton = document.createElement("span")
+    removeButton.className = "remove-image"
+    removeButton.innerHTML = "&times;"
+    removeButton.onclick = removeImagePreview
+
+    previewContainer.appendChild(previewImg)
+    previewContainer.appendChild(removeButton)
+
+    // Remove existing preview if any
+    const existingPreview = document.getElementById("image-preview")
+    if (existingPreview) {
+      existingPreview.remove()
+    }
+
+    document.querySelector(".input-area").insertBefore(previewContainer, document.getElementById("send"))
+  }
+
+  reader.readAsDataURL(file)
+}
+
+const removeImagePreview = () => {
+  const preview = document.getElementById("image-preview")
+  if (preview) {
+    preview.remove()
+  }
+  currentImage = null
+}
+
+const addImageMessage = (role, imageUrl) => {
+  const imageElement = document.createElement("img")
+  imageElement.src = imageUrl
+  imageElement.className = "message-image"
+  imageElement.alt = "Uploaded image"
+
+  const messageDiv = document.createElement("div")
+  messageDiv.className = `message ${role}`
+  messageDiv.style.fontSize = `${zoomLevel}%`
+  messageDiv.appendChild(imageElement)
+
+  chatBox.appendChild(messageDiv)
+  chatBox.scrollTop = chatBox.scrollHeight
+}
+
 const zoomIn = () => {
   if (zoomLevel < maxZoom) {
     zoomLevel += zoomStep
@@ -215,7 +277,7 @@ const changeOutput = () => {
 
 const changeLanguage = () => {
   const isVietnamese = document.getElementById("languageSwitch").checked
-  const titles = document.querySelectorAll('.icon-item-title, .body-large')
+  const titles = document.querySelectorAll(".icon-item-title, .body-large")
   const descriptions = document.querySelectorAll(".icon-item-desc, .body-small")
 
   if (isVietnamese) {
@@ -252,62 +314,169 @@ const addMessage = (role, content) => {
   chatBox.scrollTop = chatBox.scrollHeight
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Initialize chatModes array if not already defined
+if (typeof chatModes === "undefined") {
+  window.chatModes = [
+    "You will be provided with statements, and your task is to convert them to standard English.",
+    "Summarize content you are provided with for a second-grade student.",
+    "You will be provided with unstructured data, and your task is to parse it into CSV format.",
+    "You will be provided with text, and your task is to translate it into emojis. Do not use any regular text. Do your best with emojis only.",
+    "You will be provided with Python code, and your task is to calculate its time complexity.",
+    "You will be provided with a piece of code, and your task is to explain it in a concise way.",
+    "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
+    "You will be provided with a product description and seed words, and your task is to generate product names.",
+    "You will be provided with a piece of Python code, and your task is to find and fix bugs in it.",
+    "You are a helpful assistant",
+    "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative.",
+    "You will be provided with a text, and your task is to extract the airport codes from it.",
+    'You will be provided with a description of a mood, and your task is to generate the CSS code for a color that matches it. Write your output in json with a single key called "css_code".',
+    "You are a helpful assistant",
+    "You are Marv, a chatbot that reluctantly answers questions with sarcastic responses.",
+    "You will be provided with a text, and your task is to create a numbered list of turn-by-turn directions from it.",
+    "You are a helpful assistant",
+    "You are a helpful assistant",
+    "You will be provided with a piece of Python code, and your task is to provide ideas for efficiency improvements.",
+    "You are a helpful assistant",
+    "You are a helpful assistant",
+    "You are a helpful assistant",
+    "You will be provided with a message, and your task is to respond using emojis only.",
+    "You will be provided with a sentence in English, and your task is to translate it into French.",
+    "You are a Socratic tutor. Use the following principles in responding to students.",
+    "Given the following SQL tables, your job is to write queries given a user's request.",
+    "You will be provided with meeting notes, and your task is to summarize the meeting.",
+    "You will be presented with user reviews and your job is to provide a set of tags from the following list.",
+    "You are a helpful assistant",
+    "You are a helpful assistant",
+  ]
+}
+
+// Initialize marked if not already defined
+if (typeof marked === "undefined") {
+  window.marked = {
+    parse: (text) => text,
+  }
+}
+
+async function handleSubmit() {
   const input = document.getElementById("question")
+  const question = input.value.trim()
+  input.blur()
+  window.scrollTo({
+    top: 0,
+  })
 
-  // Initialize zoom controls
-  document.getElementById("zoom-in").addEventListener("click", zoomIn)
-  document.getElementById("zoom-out").addEventListener("click", zoomOut)
-  document.getElementById("zoom-reset").addEventListener("click", resetZoom)
+  if (!question && !currentImage) return
 
-  // Load saved zoom level if exists
-  const savedZoom = localStorage.getItem("chatZoomLevel")
-  if (savedZoom) {
-    zoomLevel = Number.parseInt(savedZoom)
-    updateZoom()
+  // Add user's message to chat
+  addMessage("user", question)
+
+  // If there's an image, add it to the chat
+  if (currentImage) {
+    addImageMessage("user", currentImage)
   }
 
-  async function handleSubmit() {
-    const question = input.value.trim()
-    document.getElementById("question").blur()
-    window.scrollTo({
-      top: 0,
+  input.value = ""
+  chatBox.scrollTop = chatBox.scrollHeight
+
+  // Prepare message content
+  const messageContent = []
+
+  if (question) {
+    messageContent.push({ type: "text", text: question })
+  }
+
+  if (currentImage) {
+    messageContent.push({
+      type: "image_url",
+      image_url: { url: currentImage },
     })
+  }
 
-    if (!question) return
-    addMessage("user", question)
-    input.value = ""
-    chatBox.scrollTop = chatBox.scrollHeight // Scroll to bottom
-
-    // Add user's message to history
+  // Add to history - format depends on whether we have an image
+  if (currentImage) {
+    history.push({
+      role: "user",
+      content: messageContent,
+    })
+  } else {
     history.push({ role: "user", content: question })
-    let requestBody = {
+  }
+
+  // Prepare request body
+  let requestBody = {
+    messages: [
+      { role: "developer", content: modeChat || "You are a helpful assistant that can analyze images." },
+      ...history,
+    ],
+    model: modelGPT,
+  }
+
+  if (!newModel.includes(modelGPT)) {
+    requestBody = {
       messages: [
-        { role: "developer", content: modeChat || "You are a helpful assistant." },
-        ...history, // Include the entire message history
+        { role: "system", content: modeChat || "You are a helpful assistant that can analyze images." },
+        ...history,
       ],
       model: modelGPT,
+      temperature: 1,
+      max_tokens: 4096,
+      top_p: 1,
     }
-    if (!newModel.includes(modelGPT)) {
-      requestBody = {
-        messages: [
-          { role: "system", content: modeChat || "You are a helpful assistant." },
-          ...history, // Include the entire message history
-        ],
-        model: modelGPT,
-        temperature: 1,
-        max_tokens: 4096,
-        top_p: 1,
-      }
-    }
-    // Send request to the API
-    const apiKey = localStorage.getItem("apiKey")
-    if (!apiKey) {
-      addMessage("ai", "⚠️ Bạn chưa nhập API Key.")
-      alert("Bạn chưa nhập API Key.")
+  }
+
+  // Send request to the API
+  const apiKey = localStorage.getItem("apiKey")
+  if (!apiKey) {
+    addMessage("ai", "⚠️ Bạn chưa nhập API Key.")
+    alert("Bạn chưa nhập API Key.")
+    return
+  }
+
+  const url = "https://models.inference.ai.azure.com/chat/completions"
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(requestBody),
+  })
+
+  if (response.status === 200) {
+    const data = await response.json()
+
+    // Extract answer from the response
+    const answer = data.choices[0].message?.content
+    console.log("data ", data)
+    console.log("answer", answer)
+
+    // Add AI's message to the chat box and history
+    if (!answer) {
+      history.pop()
+      addMessage("ai", "Đường truyền có chút sai sót xin vui lòng thử lại.")
       return
     }
-    const url = "https://models.inference.ai.azure.com/chat/completions"
+
+    addMessage("ai", answer)
+    history.push({ role: "assistant", content: answer }) // Add AI's message to history
+
+    // Clear image after sending
+    removeImagePreview()
+    currentImage = null
+  } else if (response.status === 429) {
+    addMessage("ai", "Rate limited. Please wait.")
+    modelGPT = "gpt-4o-mini"
+    const requestBody = {
+      messages: [
+        { role: "system", content: modeChat || "You are a helpful assistant that can analyze images." },
+        ...history,
+      ],
+      model: modelGPT,
+      temperature: 0.7,
+      max_tokens: 4096,
+      top_p: 0.9,
+    }
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -316,56 +485,45 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       body: JSON.stringify(requestBody),
     })
-    if (response.status === 200) {
-      const data = await response.json()
+    const data = await response.json()
 
-      // Extract answer from the response
-      const answer = data.choices[0].message?.content
-      console.log("data ", data)
-      console.log("answer", answer)
-      // Add AI's message to the chat box and history
-      if (!answer) {
-        history.pop()
-        addMessage("ai", "Đường truyền có chút sai sót xin vui lòng thử lại.")
-        return
-      }
-      addMessage("ai", answer)
-      history.push({ role: "assistant", content: answer }) // Add AI's message to history
-    } else if (response.status === 429) {
-      addMessage("ai", "Rate limited. Please wait.")
-      modelGPT = "gpt-4o-mini"
-      const requestBody = {
-        messages: [{ role: "system", content: modeChat || "You are a helpful assistant." }, ...history],
-        model: modelGPT,
-        temperature: 0.7,
-        max_tokens: 4096,
-        top_p: 0.9,
-      }
+    const answer = data.choices[0].message.content
+    addMessage("ai", answer)
+    history.push({ role: "assistant", content: answer }) // Add AI's message to history
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(requestBody),
-      })
-      const data = await response.json()
+    // Clear image after sending
+    removeImagePreview()
+    currentImage = null
+  } else if (response.status === 400) {
+    addMessage(
+      "ai",
+      `Error status: ${response.status} Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi`,
+    )
+    history.pop()
+  } else {
+    addMessage("ai", `Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại`)
+    history.pop()
+  }
 
-      const answer = data.choices[0].message.content
-      addMessage("ai", answer)
-      history.push({ role: "assistant", content: answer }) // Add AI's message to history
-    } else if (response.status === 400) {
-      addMessage(
-        "ai",
-        `Error status: ${response.status} Câu hỏi có vấn đề xin vui lòng diễn giải chính xác vấn đề cần hỏi`,
-      )
-      history.pop()
-    } else {
-      addMessage("ai", `Error status: ${response.status}, Có lỗi xảy ra xin vui lòng thử lại`)
-      history.pop()
-    }
-    chatBox.scrollTop = chatBox.scrollHeight // Scroll to bottom
+  chatBox.scrollTop = chatBox.scrollHeight // Scroll to bottom
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("question")
+
+  // Initialize zoom controls
+  document.getElementById("zoom-in").addEventListener("click", zoomIn)
+  document.getElementById("zoom-out").addEventListener("click", zoomOut)
+  document.getElementById("zoom-reset").addEventListener("click", resetZoom)
+
+  // Initialize image upload
+  document.getElementById("image-upload").addEventListener("change", handleImageUpload)
+
+  // Load saved zoom level if exists
+  const savedZoom = localStorage.getItem("chatZoomLevel")
+  if (savedZoom) {
+    zoomLevel = Number.parseInt(savedZoom)
+    updateZoom()
   }
 
   input.addEventListener("keypress", (event) => {
@@ -386,48 +544,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize language based on switch state
   changeLanguage()
-
-  // Initialize chatModes array if not already defined
-  if (typeof chatModes === "undefined") {
-    window.chatModes = [
-      "You will be provided with statements, and your task is to convert them to standard English.",
-      "Summarize content you are provided with for a second-grade student.",
-      "You will be provided with unstructured data, and your task is to parse it into CSV format.",
-      "You will be provided with text, and your task is to translate it into emojis. Do not use any regular text. Do your best with emojis only.",
-      "You will be provided with Python code, and your task is to calculate its time complexity.",
-      "You will be provided with a piece of code, and your task is to explain it in a concise way.",
-      "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
-      "You will be provided with a product description and seed words, and your task is to generate product names.",
-      "You will be provided with a piece of Python code, and your task is to find and fix bugs in it.",
-      "You are a helpful assistant",
-      "You will be provided with a tweet, and your task is to classify its sentiment as positive, neutral, or negative.",
-      "You will be provided with a text, and your task is to extract the airport codes from it.",
-      'You will be provided with a description of a mood, and your task is to generate the CSS code for a color that matches it. Write your output in json with a single key called "css_code".',
-      "You are a helpful assistant",
-      "You are Marv, a chatbot that reluctantly answers questions with sarcastic responses.",
-      "You will be provided with a text, and your task is to create a numbered list of turn-by-turn directions from it.",
-      "You are a helpful assistant",
-      "You are a helpful assistant",
-      "You will be provided with a piece of Python code, and your task is to provide ideas for efficiency improvements.",
-      "You are a helpful assistant",
-      "You are a helpful assistant",
-      "You are a helpful assistant",
-      "You will be provided with a message, and your task is to respond using emojis only.",
-      "You will be provided with a sentence in English, and your task is to translate it into French.",
-      "You are a Socratic tutor. Use the following principles in responding to students.",
-      "Given the following SQL tables, your job is to write queries given a user's request.",
-      "You will be provided with meeting notes, and your task is to summarize the meeting.",
-      "You will be presented with user reviews and your job is to provide a set of tags from the following list.",
-      "You are a helpful assistant",
-      "You are a helpful assistant",
-    ]
-  }
-
-  // Initialize marked if not already defined
-  if (typeof marked === "undefined") {
-    window.marked = {
-      parse: (text) => text,
-    }
-  }
 })
 
